@@ -1,4 +1,5 @@
-import { request } from 'umi';
+// import { request } from 'umi';
+import {request} from '../../config/API';
 
 export interface NoticeListRequestParamsType {
   per_page?: number,
