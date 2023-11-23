@@ -1,5 +1,5 @@
-import { request } from 'umi';
-// import request from 'umi-request'
+// import { request } from 'umi';
+import {request} from '../../config/API';
 
 export interface TicketParamsType {
   category: string;
