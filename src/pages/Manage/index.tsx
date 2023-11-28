@@ -3,6 +3,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import {Card, Select, Button, message, Modal, Tabs} from 'antd';
 import {getWorkflowList} from "@/services/workflows";
 import NoticeRecord from "@/pages/Manage/NoticeManage";
+import WhiteListRecord from "@/pages/Manage/IpRestrict";
 
 const { Option } = Select;
 
@@ -58,6 +59,9 @@ class Manage extends Component<any, any> {
           <Tabs defaultActiveKey="1" >
             <TabPane tab="通知配置" key="1">
               <NoticeRecord />
+            </TabPane>
+            <TabPane tab="IP限制" key="2">
+              <WhiteListRecord />
             </TabPane>
             {/*<TabPane tab="LDAP配置" key="2">*/}
             {/*  Content of Tab Pane 2*/}
