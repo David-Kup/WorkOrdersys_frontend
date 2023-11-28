@@ -81,3 +81,57 @@ export async function updateNoticeDetailRequest(noticeId: number, params: update
     data: params
   })
 }
+
+
+
+
+
+// types.ts
+export interface IPRangeRespondParamsType {
+  code?: number,
+  message?: String,
+  data: IPRangeType[]
+}
+
+export interface IPRangeType {
+  id: number;
+  ip_group: number; // Adjust the type as per your actual data model
+  first_ip: string;
+  cidr_prefix_length: number | null;
+  last_ip: string | null;
+  description: string;
+}
+
+export interface IPRangeFormDataType {
+  ip_group: number;
+  first_ip: string;
+  cidr_prefix_length: number | null;
+  last_ip: string | null;
+  description: string;
+}
+
+
+export const IPRangeService = {
+  list: () =>
+    request<IPRangeRespondParamsType>('/api/v1.0/ip_restricts'),
+
+  get: (id: number) =>
+    request<IPRangeType>(`/api/v1.0/ip_restricts/${id}`),
+
+  create: (data: IPRangeFormDataType) =>
+    request<IPRangeType>('/api/v1.0/ip_restricts/create', {
+      method: 'POST',
+      data
+    }),
+
+  update: (id: number, data: IPRangeFormDataType) =>
+    request<IPRangeType>(`/api/v1.0/ip_restricts/${id}/update`, {
+      method: 'PATCH',
+      data
+    }),
+
+  delete: (id: number) =>
+    request<void>(`/api/v1.0/ip_restricts/${id}/delete`, {
+      method: 'DELETE'
+    }),
+};
