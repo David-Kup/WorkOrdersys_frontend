@@ -13,7 +13,7 @@ import {
   Upload,
   Collapse,
   Card, Divider,
-  Popconfirm, Modal
+  Popconfirm, Modal, Spin
 } from 'antd';
 
 import BraftEditor from 'braft-editor';
@@ -54,6 +54,7 @@ export interface TicketDetailProps {
 }
 
 export interface TicketDetailState {
+  isLoading: boolean,
   ticketDetailInfoData: [],
   ticketTransitionList: [],
   ticketInfo: {},
@@ -73,7 +74,6 @@ export interface TicketDetailState {
   deliverFromAdmin: false,
   isCommentModalVisible: false,
   userSelectDict: {}
-
 }
 
 
@@ -127,6 +127,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   constructor(props: Readonly<TicketDetailProps>) {
     super(props);
     this.state = {
+      isLoading: false,
       ticketDetailInfoData: [],
       ticketTransitionList: [],
       fieldTypeDict: {},
@@ -172,12 +173,14 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   }
 
   fetchCanIntervene = async(workflowId: number) => {
+    this.setState({isLoading: true});
     const result = await canInterveneRequest(workflowId);
     if (result.code === 0) {
       this.setState({
         canIntervene: result.data.can_intervene
       })
     }
+    this.setState({isLoading: false});
   }
 
   fetchWorkflowSimpleState = async(workflowId: number) => {
@@ -205,7 +208,12 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   }
 
   fetchTicketDetailInfo = async() => {
+    console.log(`fetchTicketDetailInfo started`);
+    this.setState({isLoading: true});
     const result = await getDetailDetailRequest({ticket_id: this.props.ticketId});
+    this.setState({isLoading: false});
+    console.log(`fetchTicketDetailInfo ended`);
+
     if (result.code === 0 ){
       this.fetchCanIntervene(result.data.value.workflow_id);
       this.fetchWorkflowSimpleState(result.data.value.workflow_id);
@@ -279,7 +287,8 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       }
       this.setState({fieldTypeDict});
 
-      this.formRef.current.setFieldsValue(formInitValues);
+      if (formInitValues) 
+        this.formRef.current.setFieldsValue(formInitValues)
     } else {
       message.error(result.msg)
     }
@@ -287,6 +296,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
   onCloseTicketFinish = async (values) => {
     const result = await closeTicketRequest(this.props.ticketId, values);
+    alert()
     if (result.code === 0) {
       message.success('关闭工单成功');
       this.setState({isCloseModalVisible: false});
@@ -957,256 +967,258 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
     return (
       <div>
-        <Collapse defaultActiveKey={['flowStep', 'ticketDetail']} bordered={false}>
-          {this.props.ticketId?
-            <Collapse.Panel header="流程图" key="flowchart">
-              <WorkflowGraph workflowId={this.state.nowTicketWorkflowId}/>
-            </Collapse.Panel>: null
+        <Spin spinning={this.state.isLoading}>
+          <Collapse defaultActiveKey={['flowStep', 'ticketDetail']} bordered={false}>
+            {/* {this.props.ticketId?
+              <Collapse.Panel header="流程图" key="flowchart">
+                <WorkflowGraph workflowId={this.state.nowTicketWorkflowId}/>
+              </Collapse.Panel>: null
+            } */}
+
+            {this.props.ticketId?
+            <Collapse.Panel header="操作记录" key="flowLog">
+              <TicketLog ticketId={this.props.ticketId}/>
+            </Collapse.Panel> : null}
+
+            {this.props.ticketId?
+            <Collapse.Panel header="工单进度" key="flowStep">
+              <TicketStep ticketId={this.props.ticketId}/>
+            </Collapse.Panel> : null }
+
+            <Collapse.Panel header="工单信息" key="ticketDetail">
+              <Form
+                {...formItemLayout}
+                name="ticketDetailForm"
+                ref={this.formRef}
+                className="ant-advanced-search-form"
+              >
+                <Row gutter={24}>
+                  {form_items}
+                </Row>
+
+                {this.state.ticketTransitionList.length !== 0 && this.props.ticketId!==0?
+                  <Form.Item
+                    name="suggestion"
+                  >
+                    <TextArea
+                      placeholder="请输入处理意见"
+                    />
+                  </Form.Item>: null
+                }
+
+                {handleButtonItems}
+              </Form>
+              {this.props.ticketId?
+                <TicketList category="all" parentTicketId={this.props.ticketId}/>: null
+              }
+            </Collapse.Panel>
+          </Collapse>
+          {this.state.canIntervene?
+            <Card title="管理员操作">
+              <Button type="primary" danger onClick={this.showCloseModal}>
+                强制关闭工单
+              </Button>
+              <Divider type="vertical" />
+              <Button type="primary" danger onClick={this.showChangeStateModal}>
+
+                强制修改状态
+              </Button>
+              <Divider type="vertical" />
+              <Button type="primary" danger onClick={this.showAdminDeliverModal}>
+                强制转交
+              </Button>
+
+            </Card>: null
           }
 
-          {this.props.ticketId?
-          <Collapse.Panel header="操作记录" key="flowLog">
-            <TicketLog ticketId={this.props.ticketId}/>
-          </Collapse.Panel> : null}
-
-          {this.props.ticketId?
-          <Collapse.Panel header="工单进度" key="flowStep">
-            <TicketStep ticketId={this.props.ticketId}/>
-          </Collapse.Panel> : null }
-
-          <Collapse.Panel header="工单信息" key="ticketDetail">
+          <Modal title="强制关闭工单"
+                visible={this.state.isCloseModalVisible}
+                onCancel={this.closeModal}
+                footer={null}
+          >
             <Form
-              {...formItemLayout}
-              name="ticketDetailForm"
-              ref={this.formRef}
-              className="ant-advanced-search-form"
+              onFinish={this.onCloseTicketFinish}
             >
-              <Row gutter={24}>
-                {form_items}
-              </Row>
-
-              {this.state.ticketTransitionList.length !== 0 && this.props.ticketId!==0?
-                <Form.Item
-                  name="suggestion"
-                >
-                  <TextArea
-                    placeholder="请输入处理意见"
-                  />
-                </Form.Item>: null
-              }
-
-              {handleButtonItems}
-            </Form>
-            {this.props.ticketId?
-              <TicketList category="all" parentTicketId={this.props.ticketId}/>: null
-            }
-          </Collapse.Panel>
-        </Collapse>
-        {this.state.canIntervene?
-          <Card title="管理员操作">
-            <Button type="primary" danger onClick={this.showCloseModal}>
-              强制关闭工单
-            </Button>
-            <Divider type="vertical" />
-            <Button type="primary" danger onClick={this.showChangeStateModal}>
-
-              强制修改状态
-            </Button>
-            <Divider type="vertical" />
-            <Button type="primary" danger onClick={this.showAdminDeliverModal}>
-              强制转交
-            </Button>
-
-          </Card>: null
-        }
-
-        <Modal title="强制关闭工单"
-               visible={this.state.isCloseModalVisible}
-               onCancel={this.closeModal}
-               footer={null}
-        >
-          <Form
-            onFinish={this.onCloseTicketFinish}
-          >
-            <Form.Item
-              name="suggestion"
-            >
-              <TextArea
-                placeholder="请输入备注/意见"
-              />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" className="login-form-button">
-                确定
-              </Button>
-            </Form.Item>
-          </Form>
-        </Modal>
-
-        <Modal title= {this.state.deliverFromAdmin? "强制转交": "转交"}
-               visible={this.state.isDeliverModalVisible}
-               onCancel={this.closeModal}
-               footer={null}
-        >
-          <Form
-            onFinish={this.onDeliverFinish}
-          >
-            <Form.Item
-              name="target_username"
-              rules={[{ required: true, message: '请选择转交对象' }]}
-            >
-              <Select
-                placeholder="请输入关键词搜索转交人"
-                showSearch onSearch = {(search_value)=>this.userSimpleSearch('target_username', search_value)} filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }>
-                {this.state.userSelectDict['target_username'] && this.state.userSelectDict['target_username'].map(d => (
-                  <Option key={d.username} value={d.username}>{`${d.alias}(${d.username})`}</Option>
-                ))}
-
-              </Select>
-            </Form.Item>
-            <Form.Item
-              name="suggestion"
-            >
-              <TextArea
-                placeholder="请输入备注/处理意见"
-              />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" className="login-form-button">
-                提交
-              </Button>
-            </Form.Item>
-          </Form>
-        </Modal>
-
-        <Modal title="强制修改状态"
-               visible={this.state.isChangeStateModalVisible}
-               onCancel={this.closeModal}
-               footer={null}
-        >
-          <Form
-            onFinish={this.onChangeStateFinish}
-          >
-            <Form.Item
-              name="state_id"
-              rules={[{ required: true, message: '请选择目标状态' }]}
-            >
-              <Select
-                showSearch
-                style={{ width: 200 }}
-                placeholder="请选择状态"
-                optionFilterProp="children"
-                onChange={this.onStateChange}
-                filterOption={(input, option) =>
-                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }
+              <Form.Item
+                name="suggestion"
               >
-                {this.state.simpleStateList && this.state.simpleStateList.map(simpleState =>{
-                  return <Option key={simpleState.id} value={simpleState.id}>{simpleState.name}</Option>
-                })}
-              </Select>
-            </Form.Item>
-            <Form.Item
-              name="suggestion"
-            >
-              <TextArea
-                placeholder="请输入备注/处理意见"
-              />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" className="login-form-button">
-                提交
-              </Button>
-            </Form.Item>
-          </Form>
-        </Modal>
+                <TextArea
+                  placeholder="请输入备注/意见"
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" className="login-form-button">
+                  确定
+                </Button>
+              </Form.Item>
+            </Form>
+          </Modal>
 
-        <Modal title="加签"
-               visible={this.state.isAddNodeModalVisible}
-               onCancel={this.closeModal}
-               footer={null}
-        >
-          <Form
-            onFinish={this.onAddNodeFinish}
+          <Modal title= {this.state.deliverFromAdmin? "强制转交": "转交"}
+                visible={this.state.isDeliverModalVisible}
+                onCancel={this.closeModal}
+                footer={null}
           >
-            <Form.Item
-              name="target_username"
-              rules={[{ required: true, message: '请选择加签对象' }]}
+            <Form
+              onFinish={this.onDeliverFinish}
             >
-              <Select
-                placeholder="请输入关键词搜索转交人"
-                showSearch onSearch = {(search_value)=>this.userSimpleSearch('target_username', search_value)} filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }>
-                {this.state.userSelectDict['target_username'] && this.state.userSelectDict['target_username'].map(d => (
-                  <Option key={d.username} value={d.username}>{`${d.alias}(${d.username})`}</Option>
-                ))}
+              <Form.Item
+                name="target_username"
+                rules={[{ required: true, message: '请选择转交对象' }]}
+              >
+                <Select
+                  placeholder="请输入关键词搜索转交人"
+                  showSearch onSearch = {(search_value)=>this.userSimpleSearch('target_username', search_value)} filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }>
+                  {this.state.userSelectDict['target_username'] && this.state.userSelectDict['target_username'].map(d => (
+                    <Option key={d.username} value={d.username}>{`${d.alias}(${d.username})`}</Option>
+                  ))}
 
-              </Select>
-            </Form.Item>
-            <Form.Item
-              name="suggestion"
-            >
-              <TextArea
-                placeholder="请输入备注/处理意见"
-              />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" className="login-form-button">
-                提交
-              </Button>
-            </Form.Item>
-          </Form>
-        </Modal>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name="suggestion"
+              >
+                <TextArea
+                  placeholder="请输入备注/处理意见"
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" className="login-form-button">
+                  提交
+                </Button>
+              </Form.Item>
+            </Form>
+          </Modal>
 
-        <Modal title="留言"
-               visible={this.state.isCommentModalVisible}
-               onCancel={this.closeModal}
-               footer={null}
-        >
-          <Form
-            onFinish={this.onCommentFinish}
+          <Modal title="强制修改状态"
+                visible={this.state.isChangeStateModalVisible}
+                onCancel={this.closeModal}
+                footer={null}
           >
-            <Form.Item
-              name="suggestion"
+            <Form
+              onFinish={this.onChangeStateFinish}
             >
-              <TextArea
-                placeholder="请输入意见"
-              />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" className="login-form-button">
-                提交
-              </Button>
-            </Form.Item>
-          </Form>
-        </Modal>
+              <Form.Item
+                name="state_id"
+                rules={[{ required: true, message: '请选择目标状态' }]}
+              >
+                <Select
+                  showSearch
+                  style={{ width: 200 }}
+                  placeholder="请选择状态"
+                  optionFilterProp="children"
+                  onChange={this.onStateChange}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                >
+                  {this.state.simpleStateList && this.state.simpleStateList.map(simpleState =>{
+                    return <Option key={simpleState.id} value={simpleState.id}>{simpleState.name}</Option>
+                  })}
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name="suggestion"
+              >
+                <TextArea
+                  placeholder="请输入备注/处理意见"
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" className="login-form-button">
+                  提交
+                </Button>
+              </Form.Item>
+            </Form>
+          </Modal>
 
-        <Modal title="撤回"
-               visible={this.state.isRetreatModalVisible}
-               onCancel={this.closeModal}
-               footer={null}
-        >
-          <Form
-            onFinish={this.onRetreatFinish}
+          <Modal title="加签"
+                visible={this.state.isAddNodeModalVisible}
+                onCancel={this.closeModal}
+                footer={null}
           >
-            <Form.Item
-              name="suggestion"
+            <Form
+              onFinish={this.onAddNodeFinish}
             >
-              <TextArea
-                placeholder="请输入意见"
-              />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" className="login-form-button">
-                提交
-              </Button>
-            </Form.Item>
-          </Form>
-        </Modal>
+              <Form.Item
+                name="target_username"
+                rules={[{ required: true, message: '请选择加签对象' }]}
+              >
+                <Select
+                  placeholder="请输入关键词搜索转交人"
+                  showSearch onSearch = {(search_value)=>this.userSimpleSearch('target_username', search_value)} filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }>
+                  {this.state.userSelectDict['target_username'] && this.state.userSelectDict['target_username'].map(d => (
+                    <Option key={d.username} value={d.username}>{`${d.alias}(${d.username})`}</Option>
+                  ))}
 
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name="suggestion"
+              >
+                <TextArea
+                  placeholder="请输入备注/处理意见"
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" className="login-form-button">
+                  提交
+                </Button>
+              </Form.Item>
+            </Form>
+          </Modal>
+
+          <Modal title="留言"
+                visible={this.state.isCommentModalVisible}
+                onCancel={this.closeModal}
+                footer={null}
+          >
+            <Form
+              onFinish={this.onCommentFinish}
+            >
+              <Form.Item
+                name="suggestion"
+              >
+                <TextArea
+                  placeholder="请输入意见"
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" className="login-form-button">
+                  提交
+                </Button>
+              </Form.Item>
+            </Form>
+          </Modal>
+
+          <Modal title="撤回"
+                visible={this.state.isRetreatModalVisible}
+                onCancel={this.closeModal}
+                footer={null}
+          >
+            <Form
+              onFinish={this.onRetreatFinish}
+            >
+              <Form.Item
+                name="suggestion"
+              >
+                <TextArea
+                  placeholder="请输入意见"
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" className="login-form-button">
+                  提交
+                </Button>
+              </Form.Item>
+            </Form>
+          </Modal>
+
+        </Spin>
       </div>
     )
   }

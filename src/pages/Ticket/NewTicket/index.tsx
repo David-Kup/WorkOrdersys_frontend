@@ -1,6 +1,7 @@
-import {Form, Input, Button, Checkbox, Col, Row, message} from 'antd';
+import {Form, Input, Card, Button, Checkbox, Col, Row, message, Select} from 'antd';
 import React, {Component} from 'react';
 import {getWorkflowInitState} from "@/services/workflows";
+import { newTicketRequest } from '@/services/ticket';
 
 
 class NewTicket extends Component<any, any> {
@@ -8,7 +9,7 @@ class NewTicket extends Component<any, any> {
     super();
     this.state = {
       workflowResult: [],
-
+      urgencyLevel: '普通'
     };
   }
 
@@ -17,9 +18,19 @@ class NewTicket extends Component<any, any> {
   }
 
 
-  onFinish = values => {
+  onFinish = async (values) => {
     console.log('success:', values);
-
+    // 新建工单
+    values.workflow_id = Number(1);
+    values.transition_id= Number(1);
+    const result = await newTicketRequest(values)
+    if (result.code === 0) {
+      message.success('创建工单成功');
+      // this.props.newTicketOk(result.data.ticket_id)
+      // #tode 刷新页面,关闭弹窗
+    } else {
+      message.error(result.msg);
+    }
   };
 
   onFinishFailed = errorInfo => {
@@ -29,7 +40,7 @@ class NewTicket extends Component<any, any> {
 
 
   fetchWorkflowInitData = async () => {
-    const result = await getWorkflowInitState({workflowId: this.props.workflowId})
+    const result = await getWorkflowInitState({workflowId: 1})
     if (result.code === 0) {
       this.setState({workflowResult: result.data.value});
     } else {
@@ -41,47 +52,71 @@ class NewTicket extends Component<any, any> {
 
   render(){
     const layout = {
-      labelCol: { span: 8},
-      wrapperCol: { span: 16},
+      labelCol: { span: 4},
+      wrapperCol: { span: 12},
     };
 
     const tailLayout = {
-      wrapperCol: { offset:8, span: 16},
+      wrapperCol: { offset:22},
     };
 
 
 
     return (
-      <Form
-        {...layout}
-        name="basic"
-        initialValues = {{ remember: true}}
-        onFinish={this.onFinish}
-        onFinishFailed={this.onFinishFailed}
-      >
-        <Row gutter={24}>
-          <Col span={12}>
+      <Card title='Submit work order'>
+        <Form
+          {...layout}
+          name="basic"
+          initialValues = {{ remember: true, urgency_level: this.state.urgencyLevel}}
+          onFinish={this.onFinish}
+          onFinishFailed={this.onFinishFailed}
+        >
             <Form.Item
-              label="Username"
-              name="username"
-              rules={[{ required: true, message:'please input you username'}]}
+              label="Title"
+              name="title"
+              rules={[{ required: true, message:'please input title'}]}
             >
-              <Input />
-
+              <Input allowClear />
             </Form.Item>
-          </Col>
-          <Col span={12}>
+
             <Form.Item
-              label="Username1"
-              name="username1"
-              rules={[{ required: true, message:'please input you username'}]}
+              label="Content"
+              name="content"
+              rules={[{ required: true, message:'please input content'}]}
             >
-              <Input />
-
+              <Input.TextArea allowClear />
             </Form.Item>
-          </Col>
-        </Row>
-      </Form>
+            <Form.Item
+              name="urgency_level"
+              label="程度"
+            >
+              <Select
+                showSearch
+                // labelInValue
+                style={{ width: 200 }}
+                placeholder="普通"
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  Select.Option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
+                defaultValue={this.state.urgencyLevel}
+                onChange={(value)=>{
+                  this.setState({ urgencyLevel: value })
+                }}
+              >
+                {['紧急', '普通', '暂缓'].map(d => (
+                  <Select.Option key={'urgency level:'+d} value={d}>{d}</Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item {...tailLayout}>
+              <Button type="primary" htmlType="submit">
+                Create
+              </Button>
+            </Form.Item>
+        </Form>
+      </Card>
 
     )
   }

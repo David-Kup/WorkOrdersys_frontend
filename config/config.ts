@@ -46,47 +46,52 @@ export default defineConfig({
         },
       ],
     },
-    {
-      path: '/workbench',
-      name: '工作台',
-      icon: 'ScheduleOutlined',
-      component: './Workbench',
-    },
+    // {
+    //   path: '/workbench',
+    //   name: '工作台',
+    //   icon: 'ScheduleOutlined',
+    //   component: './Workbench',
+    // },
     {
       "path": "/tickets",
       "name": "工单管理",
       "icon": "SolutionOutlined",
       routes: [
         {
-          "path": "/tickets/duty",
-          "name": "我的待办",
-          "component": '../../src/pages/Ticket/DutyTicket',
+          "path": "/tickets/new",
+          "name": "New",
+          "component": '../../src/pages/Ticket/NewTicket',
         },
+        // {
+        //   "path": "/tickets/duty",
+        //   "name": "我的待办",
+        //   "component": '../../src/pages/Ticket/DutyTicket',
+        // },
         {
           "path": "/tickets/owner",
           "name": "我的申请",
           "component": '../../src/pages/Ticket/OwnerTicket',
 
         },
-        {
-          "path": "/tickets/relation",
-          "name": "与我相关",
-          "component": '../../src/pages/Ticket/RelatedTicket',
+        // {
+        //   "path": "/tickets/relation",
+        //   "name": "与我相关",
+        //   "component": '../../src/pages/Ticket/RelatedTicket',
 
-        },
-        {
-          "path": "/tickets/view",
-          "name": "工单查看",
-          "component": '../../src/pages/Ticket/ViewTicket',
+        // },
+        // {
+        //   "path": "/tickets/view",
+        //   "name": "工单查看",
+        //   "component": '../../src/pages/Ticket/ViewTicket',
 
-        },
-        {
-          "path": "/tickets/intervene",
-          "name": "工单干预",
-          "access": 'workflowAdmin',
-          "component": '../../src/pages/Ticket/InterveneTicket',
+        // },
+        // {
+        //   "path": "/tickets/intervene",
+        //   "name": "工单干预",
+        //   "access": 'workflowAdmin',
+        //   "component": '../../src/pages/Ticket/InterveneTicket',
 
-        },
+        // },
         {
           "path": "/tickets/all",
           "access": 'superAdmin',
@@ -133,11 +138,11 @@ export default defineConfig({
           "component": '../../src/pages/User/Dept/DeptList',
 
         },
-        {
-          "path": "/users/app",
-          "name": "调用权限",
-          "component": '../../src/pages/User/Token/TokenList',
-        }
+        // {
+        //   "path": "/users/app",
+        //   "name": "调用权限",
+        //   "component": '../../src/pages/User/Token/TokenList',
+        // }
       ],
     },
     {
@@ -155,7 +160,7 @@ export default defineConfig({
     },
     {
       path: '/',
-      redirect: '/workbench',
+      redirect: '/tickets/owner',
     },
     {
       component: './404',

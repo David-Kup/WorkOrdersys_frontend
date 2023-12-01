@@ -188,6 +188,11 @@ class TicketList extends Component<any, any> {
         key: "creator"
       },
       {
+        title: "部门",
+        dataIndex: ["creator_info", "dept_info", "name"],
+        key: "department"
+      },
+      {
         title: "创建时间",
         dataIndex: "gmt_created",
         key: "gmt_created"
@@ -253,6 +258,14 @@ class TicketList extends Component<any, any> {
             label={"创建人"}
           >
             <Input placeholder="请填写工单创建人" />
+          </Form.Item>
+        </Col>,
+        <Col span={6} key={"deapartment"}>
+          <Form.Item
+            name={"department"}
+            label={"部门"}
+          >
+            <Input placeholder="请填写工单部门" />
           </Form.Item>
         </Col>,
         <Col span={6} key={"sn"}>
