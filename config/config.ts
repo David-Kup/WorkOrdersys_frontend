@@ -59,7 +59,7 @@ export default defineConfig({
       routes: [
         {
           "path": "/tickets/new",
-          "name": "New",
+          "name": "创造",
           "component": '../../src/pages/Ticket/NewTicket',
         },
         // {
