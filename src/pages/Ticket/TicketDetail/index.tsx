@@ -173,12 +173,14 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   }
 
   fetchCanIntervene = async(workflowId: number) => {
+    this.setState({isLoading: true});
     const result = await canInterveneRequest(workflowId);
     if (result.code === 0) {
       this.setState({
         canIntervene: result.data.can_intervene
       })
     }
+    this.setState({isLoading: false});
   }
 
   fetchWorkflowSimpleState = async(workflowId: number) => {
@@ -285,7 +287,8 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       }
       this.setState({fieldTypeDict});
 
-      this.formRef.current.setFieldsValue(formInitValues);
+      if (formInitValues) 
+        this.formRef.current.setFieldsValue(formInitValues)
     } else {
       message.error(result.msg)
     }
@@ -293,6 +296,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
   onCloseTicketFinish = async (values) => {
     const result = await closeTicketRequest(this.props.ticketId, values);
+    alert()
     if (result.code === 0) {
       message.success('关闭工单成功');
       this.setState({isCloseModalVisible: false});

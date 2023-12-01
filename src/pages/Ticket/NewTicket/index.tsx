@@ -9,7 +9,7 @@ class NewTicket extends Component<any, any> {
     super();
     this.state = {
       workflowResult: [],
-
+      urgencyLevel: '普通'
     };
   }
 
@@ -26,7 +26,7 @@ class NewTicket extends Component<any, any> {
     const result = await newTicketRequest(values)
     if (result.code === 0) {
       message.success('创建工单成功');
-      this.props.newTicketOk(result.data.ticket_id)
+      // this.props.newTicketOk(result.data.ticket_id)
       // #tode 刷新页面,关闭弹窗
     } else {
       message.error(result.msg);
@@ -67,7 +67,7 @@ class NewTicket extends Component<any, any> {
         <Form
           {...layout}
           name="basic"
-          initialValues = {{ remember: true}}
+          initialValues = {{ remember: true, urgency_level: this.state.urgencyLevel}}
           onFinish={this.onFinish}
           onFinishFailed={this.onFinishFailed}
         >
@@ -87,21 +87,24 @@ class NewTicket extends Component<any, any> {
               <Input.TextArea allowClear />
             </Form.Item>
             <Form.Item
-              name={"urgency_level"}
-              label={"urgency level"}
+              name="urgency_level"
+              label="程度"
             >
               <Select
                 showSearch
                 // labelInValue
                 style={{ width: 200 }}
-                placeholder="normal"
+                placeholder="普通"
                 optionFilterProp="children"
                 filterOption={(input, option) =>
                   Select.Option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }
-                defaultValue={'normal'}
+                defaultValue={this.state.urgencyLevel}
+                onChange={(value)=>{
+                  this.setState({ urgencyLevel: value })
+                }}
               >
-                {['urgent', 'normal', 'suspended'].map(d => (
+                {['紧急', '普通', '暂缓'].map(d => (
                   <Select.Option key={'urgency level:'+d} value={d}>{d}</Select.Option>
                 ))}
               </Select>

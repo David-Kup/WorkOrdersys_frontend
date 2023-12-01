@@ -79,12 +79,12 @@ export default defineConfig({
         //   "component": '../../src/pages/Ticket/RelatedTicket',
 
         // },
-        {
-          "path": "/tickets/view",
-          "name": "工单查看",
-          "component": '../../src/pages/Ticket/ViewTicket',
+        // {
+        //   "path": "/tickets/view",
+        //   "name": "工单查看",
+        //   "component": '../../src/pages/Ticket/ViewTicket',
 
-        },
+        // },
         // {
         //   "path": "/tickets/intervene",
         //   "name": "工单干预",

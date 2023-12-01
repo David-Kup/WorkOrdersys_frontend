@@ -57,9 +57,9 @@ class Manage extends Component<any, any> {
       <PageContainer>
         <Card>
           <Tabs defaultActiveKey="1" >
-            <TabPane tab="通知配置" key="1">
+            {/* <TabPane tab="通知配置" key="1">
               <NoticeRecord />
-            </TabPane>
+            </TabPane> */}
             <TabPane tab="IP限制" key="2">
               <WhiteListRecord />
             </TabPane>
