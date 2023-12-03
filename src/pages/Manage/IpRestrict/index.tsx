@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import {Table, Button, Modal, message, Popconfirm} from "antd";
+import {Table, Button, Modal, message, Popconfirm, Switch, Spin} from "antd";
 
-import { IPRangeService, IPRangeRespondParamsType } from '@/services/manage';
+import { IPRangeService, IPRangeRespondParamsType, IPTurnRespondParamsType } from '@/services/manage';
 import IpDetail from './detail';
 
 
@@ -13,6 +13,7 @@ class WhiteListRecord extends Component {
       whiteList: [],
       showModal: false,
       openWhiteListId: 0,
+      turnOnOff: true
     };
   }
 
@@ -53,27 +54,50 @@ class WhiteListRecord extends Component {
 
   fetchWhiteListData = async () => {
     this.setState({ ipRestrictionLoading: true });
-    IPRangeService.list().then((res: IPRangeRespondParamsType) => {
-      this.setState({ ipRestrictionLoading: false });
+    let listProomise = IPRangeService.list().then((res: IPRangeRespondParamsType) => {
       console.log(res.data);
       this.setState({ whiteList: res.data });
     })
     .catch(err => {
       console.log(err);
-      this.setState({ ipRestrictionLoading: false });
     });
+
+    let isTurnPromise = IPRangeService.isTurn().then((res: IPTurnRespondParamsType) => {
+      console.log(res.data);
+      let turnOnOff = res.data.action == 'D' ? true : false;
+      console.log(turnOnOff);
+      this.setState({ turnOnOff: turnOnOff })
+    })
+    .catch(err => {
+      console.log(err);
+    });
+
+    Promise.all([listProomise, isTurnPromise])
+    .then(() => this.setState({ipRestrictionLoading: false}))
+    .catch(err => this.setState({ipRestrictionLoading: false}));
   }
 
-  deleteConfirm = async(id) =>{
+  deleteConfirm = async (id) =>{
     const result = await IPRangeService.delete(id);
     if (result.code == 200) {
       message.success('删除成功');
       this.fetchWhiteListData();
     } else {
       message.error(`删除失败: ${result.msg}`);
+    }
+  }
 
+  onChange = async () => {
+    this.setState({ipRestrictionLoading: true});
+    const result = await IPRangeService.turnOnOff();
+    if (result.code == 200) {
+      message.success('成功');
+      this.setState((prev) => ({turnOnOff: !prev.turnOnOff}))
+    } else {
+      message.error(`失败: ${result.msg}`);
     }
 
+    this.setState({ipRestrictionLoading: false});
   }
 
   render() {
@@ -116,11 +140,17 @@ class WhiteListRecord extends Component {
 
     return (
       <div>
-        <Button type="primary" style={{ marginBottom: 16 }} onClick={()=>this.showDetail(0)} >
-          新建
-        </Button>
+        <Spin spinning={this.state.ipRestrictionLoading}>
+          <div style={{display: 'flex', justifyContent: 'space-between'}}>
+            <Button type="primary" style={{ marginBottom: 16 }} onClick={()=>this.showDetail(0)} >
+              新建
+            </Button>
+
+            <Switch checked={this.state.turnOnOff} onChange={this.onChange} checkedChildren="开" unCheckedChildren="关" />
+          </div>
+        </Spin>
         <Table loading={this.state.ipRestrictionLoading} columns={columns} dataSource={this.state.whiteList}
-               rowKey={record => record.id}/>
+              rowKey={record => record.id}/>
 
         <Modal
           title="IP范围"
