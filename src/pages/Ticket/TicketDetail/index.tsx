@@ -985,7 +985,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               <TicketStep ticketId={this.props.ticketId}/>
             </Collapse.Panel> : null }
 
-            <Collapse.Panel header="工单信息" key="ticketDetail">
+            {/* <Collapse.Panel header="工单信息" key="ticketDetail">
               <Form
                 {...formItemLayout}
                 name="ticketDetailForm"
@@ -1011,7 +1011,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               {this.props.ticketId?
                 <TicketList category="all" parentTicketId={this.props.ticketId}/>: null
               }
-            </Collapse.Panel>
+            </Collapse.Panel> */}
           </Collapse>
           {this.state.canIntervene?
             <Card title="管理员操作">

@@ -110,6 +110,19 @@ export interface IPRangeFormDataType {
   description: string;
 }
 
+export interface IPTurnRespondParamsType {
+  code?: number,
+  message?: String,
+  data: {
+    id: number,
+    url_patter: string,
+    ip_group_id: number,
+    reverse_ip_group: boolean,
+    action: string,
+    rank: number
+  }
+}
+
 
 export const IPRangeService = {
   list: () =>
@@ -134,4 +147,13 @@ export const IPRangeService = {
     request<void>(`/api/v1.0/ip_restricts/${id}/delete`, {
       method: 'DELETE'
     }),
+    
+  isTurn: () =>
+    request<IPTurnRespondParamsType>(`/api/v1.0/ip_restricts/turn`),
+
+  turnOnOff: () =>
+    request<IPTurnRespondParamsType>(`/api/v1.0/ip_restricts/turn`, {
+      method: 'PATCH',
+    }),
+  
 };

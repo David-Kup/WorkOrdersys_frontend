@@ -1,4 +1,5 @@
-import {Form, Input, Card, Button, Checkbox, Col, Row, message, Select} from 'antd';
+import {Form, Input, Card, Button, Checkbox, Col, Row, message, Select, Upload} from 'antd';
+import {UploadOutlined} from "@ant-design/icons/lib";
 import React, {Component} from 'react';
 import {getWorkflowInitState} from "@/services/workflows";
 import { newTicketRequest } from '@/services/ticket';
@@ -85,6 +86,15 @@ class NewTicket extends Component<any, any> {
               rules={[{ required: true, message:'please input content'}]}
             >
               <Input.TextArea allowClear />
+            </Form.Item>
+            <Form.Item 
+              label="Attach"
+              name="content"
+            >
+              <Upload action="api/v1.0/tickets/upload_file" listType="text" multiple={true} >
+              {/*child = <Upload action="api/v1.0/tickets/upload_file" listType="text" onChange={(info)=>this.fileChange(item.field_key, info)}>*/}
+                <Button icon={<UploadOutlined />}>Click to upload</Button>
+              </Upload>
             </Form.Item>
             <Form.Item
               name="urgency_level"

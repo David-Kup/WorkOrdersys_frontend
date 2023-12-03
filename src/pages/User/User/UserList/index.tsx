@@ -180,16 +180,16 @@ class UserList extends Component<any, any> {
         dataIndex: "alias",
         key: "alias"
       },
-      {
-        title: "邮箱",
-        dataIndex: "email",
-        key: "email"
-      },
-      {
-        title: "电话",
-        dataIndex: "phone",
-        key: "phone"
-      },
+      // {
+      //   title: "邮箱",
+      //   dataIndex: "email",
+      //   key: "email"
+      // },
+      // {
+      //   title: "电话",
+      //   dataIndex: "phone",
+      //   key: "phone"
+      // },
       {
         title: "部门",
         key: "user_dept",
@@ -328,12 +328,12 @@ class UserList extends Component<any, any> {
             <Form.Item name="alias" label="姓名" rules={[{ required: true }]} initialValue={this.getUserDetailField('alias')}>
               <Input />
             </Form.Item>
-            <Form.Item name="email" label="邮箱" rules={[{ required: true }]} initialValue={this.getUserDetailField('email')}>
+            {/* <Form.Item name="email" label="邮箱" rules={[{ required: true }]} initialValue={this.getUserDetailField('email')}>
               <Input />
             </Form.Item>
             <Form.Item name="phone" label="电话" rules={[{ required: true }]} initialValue={this.getUserDetailField('phone')}>
               <Input />
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item name="dept" label="部门" rules={[{ required: true }]}  initialValue={this.getUserDetailField('dept')}>
               <Select
                 mode="multiple"
