@@ -80,6 +80,13 @@ export async function newTicketRequest(params: newTicketRequestParamsType) {
   })
 }
 
+export async function updateTicketRequest(ticketId: number, params: newTicketRequestParamsType) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}`, {
+    method: 'post',
+    data: params
+  })
+}
+
 export async function handleTicketRequest(ticketId: number, params: handleTicketRequestParamsType) {
   return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}`, {
     method: 'patch',
@@ -171,6 +178,13 @@ export async function delTicketRequest(ticketId: number, params:delTicketParamsT
 
 export async function retreatRequest(ticketId: number, params:retreatTicketParamsType) {
   return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/retreat`, {
+    method: 'post',
+    data: params
+  })
+}
+
+export async function uploadRequest(params: string) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/upload_file`, {
     method: 'post',
     data: params
   })

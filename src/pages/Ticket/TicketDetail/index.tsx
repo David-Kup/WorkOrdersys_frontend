@@ -41,6 +41,7 @@ import WorkflowGraph from "@/pages/Workflow/WorkflowGraph";
 import TicketStep from "@/pages/Ticket/TicketStep";
 import {decodeJwt, getCookie} from "@/utils/utils";
 import TicketList from "@/pages/Ticket/TicketList";
+import NewTicket from "@/pages/Ticket/NewTicket";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -212,7 +213,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     this.setState({isLoading: true});
     const result = await getDetailDetailRequest({ticket_id: this.props.ticketId});
     this.setState({isLoading: false});
-    console.log(`fetchTicketDetailInfo ended`);
+    console.log(`fetchTicketDetailInfo ended`, result);
 
     if (result.code === 0 ){
       this.fetchCanIntervene(result.data.value.workflow_id);
@@ -296,7 +297,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
   onCloseTicketFinish = async (values) => {
     const result = await closeTicketRequest(this.props.ticketId, values);
-    alert()
     if (result.code === 0) {
       message.success('关闭工单成功');
       this.setState({isCloseModalVisible: false});
@@ -951,6 +951,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         form_items.push(this.switchFormItem(result));
       })
     }
+    console.log(this.state.ticketDetailInfoData)
 
     const handleButtonItems = this.genHandleButtonItem(this.state.ticketTransitionList);
 
@@ -974,6 +975,10 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
                 <WorkflowGraph workflowId={this.state.nowTicketWorkflowId}/>
               </Collapse.Panel>: null
             } */}
+            {this.props.ticketId?
+            <Collapse.Panel header="细节" key="detail">
+              <NewTicket ticketId={this.props.ticketId} ticketInfo={this.state.ticketInfo} ticketDetailInfoData={this.state.ticketDetailInfoData} />
+            </Collapse.Panel> : null}
 
             {this.props.ticketId?
             <Collapse.Panel header="操作记录" key="flowLog">
@@ -985,7 +990,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               <TicketStep ticketId={this.props.ticketId}/>
             </Collapse.Panel> : null }
 
-            {/* <Collapse.Panel header="工单信息" key="ticketDetail">
+            <Collapse.Panel header="工单信息" key="ticketDetail">
               <Form
                 {...formItemLayout}
                 name="ticketDetailForm"
@@ -1011,7 +1016,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               {this.props.ticketId?
                 <TicketList category="all" parentTicketId={this.props.ticketId}/>: null
               }
-            </Collapse.Panel> */}
+            </Collapse.Panel>
           </Collapse>
           {this.state.canIntervene?
             <Card title="管理员操作">
