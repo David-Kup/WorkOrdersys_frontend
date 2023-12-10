@@ -101,13 +101,13 @@ export default defineConfig({
         }
       ]
     },
-    // {
-    //   path: '/workflows',
-    //   name: '工作流管理',
-    //   access: 'workflowAdmin',
-    //   icon: 'DeploymentUnitOutlined',
-    //   component: '../../src/pages/Workflow/WorkflowList',
-    // },
+    {
+      path: '/workflows',
+      name: '工作流管理',
+      access: 'workflowAdmin',
+      icon: 'DeploymentUnitOutlined',
+      component: '../../src/pages/Workflow/WorkflowList',
+    },
     {
       path: '/workflows/detail',
       component: '../../src/pages/Workflow/WorkflowDetail',
