@@ -22,7 +22,7 @@ import "braft-editor/dist/index.css";
 import React, { Component, Fragment } from 'react';
 import moment from 'moment';
 import {canInterveneRequest, getWorkflowInitState, getWorkflowSimpleState} from "@/services/workflows";
-import {queryUserSimple} from "@/services/user";
+import {queryUserSimple, getSimpleDeptList} from "@/services/user";
 import {
   getDetailDetailRequest,
   newTicketRequest,
@@ -33,7 +33,7 @@ import {
   deliverTicketRequest,
   acceptTicketRequest,
   addNodeEndTicketRequest,
-  addNodeTicketRequest, addCommentRequest, retreatRequest
+  addNodeTicketRequest, addCommentRequest, retreatRequest, uploadRequest
 } from "@/services/ticket";
 import {UploadOutlined} from "@ant-design/icons/lib";
 import TicketLog from "@/pages/Ticket/TicketLog";
@@ -51,7 +51,7 @@ const { TextArea } = Input;
 export interface TicketDetailProps {
   ticketId?: number,
   workflowId?: number,
-
+  category?: string,
 }
 
 export interface TicketDetailState {
@@ -74,7 +74,8 @@ export interface TicketDetailState {
   newStateId:0,
   deliverFromAdmin: false,
   isCommentModalVisible: false,
-  userSelectDict: {}
+  userSelectDict: {},
+  deptSelectDict: [],
 }
 
 
@@ -146,7 +147,8 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       newStateId:0,
       deliverFromAdmin: false,
       isCommentModalVisible: false,
-      userSelectDict: {}
+      userSelectDict: {},
+      deptSelectDict: [],
     }
   }
 
@@ -159,6 +161,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       this.fetchTicketDetailInfo();
       // get ticket transition
       this.fetchTicketTransitionInfo();
+      this.deptSimpleSearch('name', '');
     }
 
   }
@@ -170,6 +173,15 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       let userSelectDict = {}
       userSelectDict[field_key] = result.data.value
       this.setState({userSelectDict})
+    }
+  }
+
+  deptSimpleSearch = async (field_key, search_value) => {
+    const result = await getSimpleDeptList({search_value:search_value});
+    if (result.code ===0 ) {
+      let deptSelectDict = []
+      deptSelectDict = result.data.value
+      this.setState({deptSelectDict})
     }
   }
 
@@ -288,7 +300,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       }
       this.setState({fieldTypeDict});
 
-      if (formInitValues) 
+      if (formInitValues && this.formRef.current) 
         this.formRef.current.setFieldsValue(formInitValues)
     } else {
       message.error(result.msg)
@@ -354,6 +366,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   }
 
   onChangeStateFinish = async(values) => {
+    this.setState({isLoading: true});
     const result = await changeTicketStateRequest(this.props.ticketId, values)
     if (result.code === 0 ) {
       message.success('修改状态成功');
@@ -363,6 +376,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     }
     else {
       message.error(`修改状态失败:${result.msg}`)
+      this.setState({isLoading: false});
     }
 
   }
@@ -371,6 +385,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     if (this.state.deliverFromAdmin){
       values.from_admin=1;
     }
+    values.target_username='admin';
     const result = await deliverTicketRequest(this.props.ticketId, values);
     if(result.code === 0) {
       message.success('转交成功');
@@ -399,15 +414,70 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     }
   }
 
-  onCommentFinish = async(values:any) => {
-    const result =  await addCommentRequest(this.props.ticketId, values);
-    if(result.code === 0) {
-      message.success('留言成功');
-      this.setState({isCommentModalVisible: false});
+  uploadFile = async (formData) => {
+    console.log(formData);
+    const response = await uploadRequest(formData)
+    
+    if(response.code === 0) {
+      return response;
     }
     else {
-      message.error(`留言失败:${result.msg}`)
+      throw new Error(response.error);
     }
+
+  };
+
+  customRequest = async ({ file, onSuccess, onError }) => {
+    try {
+      console.log(typeof file)
+      console.log(file)
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Assuming you have a function to send the file to the backend
+      const response = await this.uploadFile(formData);
+      // Handle success, e.g., update UI
+      console.log('Upload successful:', response);
+      onSuccess();
+
+      // Optionally, you can display a success message
+      message.success('File uploaded successfully');
+      return response.data.file_name;
+    } catch (error) {
+      // Handle error, e.g., show error message
+      console.error('Upload error:', error);
+      onError(error);
+
+      // Optionally, you can display an error message
+      message.error('Failed to upload file');
+    }
+  };
+
+  onCommentFinish = async(values:any) => {
+    this.setState({isLoading: true});
+    Promise.all(values.attach?.fileList.map((file) => this.customRequest({file: file?.originFileObj, onSuccess: ()=>{}, onError: ()=>{}})) || [])
+    .then(async results => {
+      console.log(results);
+      const combinedValues = {
+        ...values,
+        attachement: [...results],
+      };
+      delete combinedValues.attach;
+  
+      console.log('Received values:', combinedValues);
+      const result =  await addCommentRequest(this.props.ticketId, combinedValues);
+      if(result.code === 0) {
+        message.success('留言成功');
+        this.setState({isCommentModalVisible: false});
+      }
+      else {
+        message.error(`留言失败:${result.msg}`)
+      }
+      this.setState({isLoading: false});
+    })
+    .catch(err => {
+      this.setState({isLoading: false});
+    })
   }
 
   onRetreatFinish = async(values:any) => {
@@ -942,7 +1012,16 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     return buttonItems;
   }
 
-
+  onChangeUpload = ({ file, fileList }) => {
+    // Check if a file is removed
+    if (file.status === 'removed') {
+      // Update the state with the remaining files
+      // this.setState({
+      //   fileList,
+      // });
+      console.log(file, fileList);
+    }
+  };
 
   render() {
     const form_items = [];
@@ -977,7 +1056,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
             } */}
             {this.props.ticketId?
             <Collapse.Panel header="细节" key="detail">
-              <NewTicket ticketId={this.props.ticketId} ticketInfo={this.state.ticketInfo} ticketDetailInfoData={this.state.ticketDetailInfoData} />
+              <NewTicket category={this.props.category} ticketId={this.props.ticketId} ticketInfo={this.state.ticketInfo} ticketDetailInfoData={this.state.ticketDetailInfoData} />
             </Collapse.Panel> : null}
 
             {this.props.ticketId?
@@ -990,6 +1069,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               <TicketStep ticketId={this.props.ticketId}/>
             </Collapse.Panel> : null }
 
+          {this.state.canIntervene==false ? (
             <Collapse.Panel header="工单信息" key="ticketDetail">
               <Form
                 {...formItemLayout}
@@ -1017,8 +1097,12 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
                 <TicketList category="all" parentTicketId={this.props.ticketId}/>: null
               }
             </Collapse.Panel>
+          ) : null}
+
+
           </Collapse>
-          {this.state.canIntervene?
+
+          {this.props.category=='duty'?
             <Card title="管理员操作">
               <Button type="primary" danger onClick={this.showCloseModal}>
                 强制关闭工单
@@ -1028,7 +1112,11 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
                 强制修改状态
               </Button>
-              <Divider type="vertical" />
+            </Card>: null
+          }
+
+          {this.state.canIntervene?
+            <Card title="管理员操作">
               <Button type="primary" danger onClick={this.showAdminDeliverModal}>
                 强制转交
               </Button>
@@ -1067,7 +1155,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
             <Form
               onFinish={this.onDeliverFinish}
             >
-              <Form.Item
+              {/* <Form.Item
                 name="target_username"
                 rules={[{ required: true, message: '请选择转交对象' }]}
               >
@@ -1078,6 +1166,21 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
                 }>
                   {this.state.userSelectDict['target_username'] && this.state.userSelectDict['target_username'].map(d => (
                     <Option key={d.username} value={d.username}>{`${d.alias}(${d.username})`}</Option>
+                  ))}
+
+                </Select>
+              </Form.Item> */}
+              <Form.Item
+                name="dept_id"
+                rules={[{ required: true, message: '请选择转交对象' }]}
+              >
+                <Select
+                  placeholder="请输入关键词搜索转交人"
+                  showSearch onSearch = {(search_value)=>this.deptSimpleSearch('name', search_value)} filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }>
+                  {this.state.deptSelectDict && this.state.deptSelectDict.map(d => (
+                    <Option key={d.name} value={d.id}>{`${d.name}`}</Option>
                   ))}
 
                 </Select>
@@ -1182,22 +1285,33 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
                 onCancel={this.closeModal}
                 footer={null}
           >
-            <Form
-              onFinish={this.onCommentFinish}
-            >
-              <Form.Item
-                name="suggestion"
+            <Spin spinning={this.state.isLoading}>
+              <Form
+                onFinish={this.onCommentFinish}
               >
-                <TextArea
-                  placeholder="请输入意见"
-                />
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit" className="login-form-button">
-                  提交
-                </Button>
-              </Form.Item>
-            </Form>
+                <Form.Item
+                  name="suggestion"
+                >
+                  <TextArea
+                    placeholder="请输入意见"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="attach"
+                >
+                  <Upload listType="text" multiple={true} onChange={this.onChangeUpload} >
+                    <Button icon={<UploadOutlined />}>Click to upload</Button>
+                  </Upload>
+                </Form.Item>
+
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" className="login-form-button">
+                    提交
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Spin>
           </Modal>
 
           <Modal title="撤回"

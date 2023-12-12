@@ -178,16 +178,16 @@ class NewTicket extends Component<any, any> {
     };
 
 
-
     return (
       <Spin spinning={this.state.isLoading}>
-        <Card title='Submit work order'>
+        <Card title='提交工单'>
           <Form
             {...layout}
             name="basic"
             initialValues = {{ remember: true, urgency_level: this.state.urgencyLevel}}
             onFinish={this.onFinish}
             onFinishFailed={this.onFinishFailed}
+            disabled={this.props.category!='owner' ? true : false}
           >
               <Form.Item
                 label="标题"

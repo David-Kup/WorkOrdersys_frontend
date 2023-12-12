@@ -42,7 +42,7 @@ const TicketStep = (props: TicketStepType) => {
             status = 'process'
           }
           return (
-            <Step key={item.state_id} status={status} title={title} description={description}/>
+            <Step key={item.state_id} status={status} title={title} description={description} />
           )
         })}
       </Steps>
