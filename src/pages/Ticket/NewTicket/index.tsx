@@ -187,7 +187,7 @@ class NewTicket extends Component<any, any> {
             initialValues = {{ remember: true, urgency_level: this.state.urgencyLevel}}
             onFinish={this.onFinish}
             onFinishFailed={this.onFinishFailed}
-            disabled={(this.props.category=='owner'|| this.props.category=='all') ? false : true}
+            disabled={(this.props.category=='duty'|| this.props.category=='all') ? true : false}
           >
               <Form.Item
                 label="标题"
