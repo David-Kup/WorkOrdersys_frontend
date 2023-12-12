@@ -46,12 +46,12 @@ export default defineConfig({
         },
       ],
     },
-    // {
-    //   path: '/workbench',
-    //   name: '工作台',
-    //   icon: 'ScheduleOutlined',
-    //   component: './Workbench',
-    // },
+    {
+      path: '/workbench',
+      name: '工作台',
+      icon: 'ScheduleOutlined',
+      component: './Workbench',
+    },
     {
       "path": "/tickets",
       "name": "工单管理",

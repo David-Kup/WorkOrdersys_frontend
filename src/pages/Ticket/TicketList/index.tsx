@@ -350,7 +350,7 @@ class TicketList extends Component<any, any> {
           footer={null}
 
         >
-          <TicketDetail ticketId={this.state.openTicketId} handleTicketOk={()=>this.handleTicketOk()}/>
+          <TicketDetail category={this.props.category} ticketId={this.state.openTicketId} handleTicketOk={()=>this.handleTicketOk()}/>
         </Modal>
 
         <Modal

@@ -83,7 +83,11 @@ class UserList extends Component<any, any> {
   }
 
   onUserFinish= async (values) =>{
-    values.dept_ids = values.dept.join(',');
+    if(values.dept)
+      values.dept_ids = values.dept.join(',');
+    else
+      values.dept_ids = '';
+
     delete values['dept'];
     console.log(this.state.userDetail);
     console.log(this.state.userDetail.id)
@@ -334,7 +338,7 @@ class UserList extends Component<any, any> {
             <Form.Item name="phone" label="电话" rules={[{ required: true }]} initialValue={this.getUserDetailField('phone')}>
               <Input />
             </Form.Item> */}
-            <Form.Item name="dept" label="部门" rules={[{ required: true }]}  initialValue={this.getUserDetailField('dept')}>
+            <Form.Item name="dept" label="部门"  initialValue={this.getUserDetailField('dept')}>
               <Select
                 mode="multiple"
                 allowClear
