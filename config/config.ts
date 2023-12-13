@@ -16,16 +16,16 @@ export default defineConfig({
     hmr: true,
   },
   layout: {
-    name: 'Ant Design Pro',
+    name: 'Ant Design',
     locale: true,
     siderWidth: 208,
   },
   locale: {
-    // default zh-CN
     default: 'zh-CN',
-    // default true, when it is true, will use `navigator.language` overwrite default
     antd: true,
+    title: true,
     baseNavigator: true,
+    baseSeparator: '-'
   },
   dynamicImport: {
     loading: '@/components/PageLoading/index',
@@ -48,18 +48,18 @@ export default defineConfig({
     },
     {
       path: '/workbench',
-      name: '工作台',
+      name: 'workbench',
       icon: 'ScheduleOutlined',
       component: './Workbench',
     },
     {
       "path": "/tickets",
-      "name": "工单管理",
+      "name": "workordermanage",
       "icon": "SolutionOutlined",
       routes: [
         {
           "path": "/tickets/new",
-          "name": "创造",
+          "name": "new",
           "component": '../../src/pages/Ticket/NewTicket',
         },
         // {
@@ -69,7 +69,7 @@ export default defineConfig({
         // },
         {
           "path": "/tickets/owner",
-          "name": "我的申请",
+          "name": "own",
           "component": '../../src/pages/Ticket/OwnerTicket',
 
         },
@@ -95,7 +95,7 @@ export default defineConfig({
         {
           "path": "/tickets/all",
           "access": 'superAdmin',
-          "name": "所有工单",
+          "name": "all",
           "component": '../../src/pages/Ticket/AllTicket',
 
         }
@@ -115,26 +115,26 @@ export default defineConfig({
     },
     {
       "path": "/users",
-      "name": "用户及权限",
+      "name": "usermanage",
       // "icon": "dashboard",
       "icon": "ApartmentOutlined",
       access: 'superAdmin',
       routes: [
         {
           "path": "/users/user",
-          "name": "用户管理",
+          "name": "users",
           "component": '../../src/pages/User/User/UserList',
 
         },
         {
           "path": "/users/role",
-          "name": "角色管理",
+          "name": "roles",
           "component": '../../src/pages/User/Role/RoleList',
 
         },
         {
           "path": "/users/dept",
-          "name": "部门管理",
+          "name": "departments",
           "component": '../../src/pages/User/Dept/DeptList',
 
         },
@@ -147,7 +147,7 @@ export default defineConfig({
     },
     {
       path: '/manage',
-      name: '系统配置',
+      name: 'systemconfiguration',
       icon: 'ToolOutlined',
       access: 'superAdmin',
       component: './Manage',
@@ -160,7 +160,7 @@ export default defineConfig({
     },
     {
       path: '/',
-      redirect: '/tickets/owner',
+      redirect: '/workbench',
     },
     {
       component: './404',

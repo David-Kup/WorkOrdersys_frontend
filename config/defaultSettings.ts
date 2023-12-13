@@ -10,7 +10,7 @@ export default {
   fixSiderbar: true,
   colorWeak: false,
   menu: {
-    locale: false,
+    locale: true,
   },
   title: 'Loonflow',
   pwa: false,

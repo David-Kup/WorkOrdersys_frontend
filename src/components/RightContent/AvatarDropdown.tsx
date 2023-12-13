@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Menu, Spin } from 'antd';
-import { history, useModel } from 'umi';
+import { history, useModel, useIntl } from 'umi';
 import { getPageQuery } from '@/utils/utils';
 import { outLogin } from '@/services/login';
 import { stringify } from 'querystring';
@@ -34,6 +34,7 @@ const loginOut = async () => {
 
 const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
   const { initialState, setInitialState } = useModel('@@initialState');
+  const intl = useIntl();
 
   const onMenuClick = useCallback(
     (event: {
@@ -93,12 +94,12 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
       {menu && <Menu.Divider />}
       <Menu.Item key="changepwd">
         <KeyOutlined />
-        修改密码
+        {intl.formatMessage({id: 'menu.account.changepassword'})}
       </Menu.Item>
 
       <Menu.Item key="logout">
         <LogoutOutlined />
-        退出登录
+        {intl.formatMessage({id: 'menu.account.logout'})}
       </Menu.Item>
     </Menu>
   );
