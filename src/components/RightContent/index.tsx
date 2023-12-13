@@ -3,6 +3,7 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import React from 'react';
 import { useModel, SelectLang } from 'umi';
 import Avatar from './AvatarDropdown';
+import LanguageDropdown from './LanguageDropdown';
 import HeaderSearch from '../HeaderSearch';
 import styles from './index.less';
 
@@ -40,6 +41,7 @@ const GlobalHeaderRight: React.FC<{}> = () => {
         </span>
       </Tooltip>
       <Avatar />
+      <LanguageDropdown />
       {REACT_APP_ENV && (
         <span>
           <Tag color={ENVTagColor[REACT_APP_ENV]}>{REACT_APP_ENV}</Tag>

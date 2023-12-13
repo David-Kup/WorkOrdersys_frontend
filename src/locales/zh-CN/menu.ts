@@ -49,4 +49,16 @@ export default {
   'menu.editor.flow': '流程编辑器',
   'menu.editor.mind': '脑图编辑器',
   'menu.editor.koni': '拓扑编辑器',
+
+  'menu.workbench': '工作台',
+  'menu.workordermanage': '工单管理',
+  'menu.workordermanage.new': '新建',
+  'menu.workordermanage.own': '我的工单',
+  'menu.workordermanage.all': '所有工单',
+  'menu.usermanage': '用户和权限',
+  'menu.usermanage.users': '用户',
+  'menu.usermanage.roles': '角色',
+  'menu.usermanage.departments': '部门',
+  'menu.systemconfiguration': '系统配置',
+  'menu.account.changepassword': '修改密码'
 };

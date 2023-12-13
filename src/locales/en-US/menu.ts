@@ -49,4 +49,16 @@ export default {
   'menu.editor.flow': 'Flow Editor',
   'menu.editor.mind': 'Mind Editor',
   'menu.editor.koni': 'Koni Editor',
+
+  'menu.workbench': 'Workbench',
+  'menu.workordermanage': 'Work order management',
+  'menu.workordermanage.new': 'New',
+  'menu.workordermanage.own': 'My orders',
+  'menu.workordermanage.all': 'All work orders',
+  'menu.usermanage': 'Users and permissions',
+  'menu.usermanage.users': 'Users',
+  'menu.usermanage.roles': 'Roles',
+  'menu.usermanage.departments': 'Departments',
+  'menu.systemconfiguration': 'System configuration',
+  'menu.account.changepassword': 'Change password'
 };

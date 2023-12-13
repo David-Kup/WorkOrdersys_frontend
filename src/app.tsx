@@ -10,6 +10,7 @@ import { ResponseError } from 'umi-request';
 import { queryCurrent } from './services/user';
 import defaultSettings from '../config/defaultSettings';
 import user from "../mock/user";
+import { ContextProvider } from '@/contexts';
 
 export async function getInitialState(): Promise<{
   currentUser?: API.CurrentUser;
@@ -117,3 +118,14 @@ const errorHandler = (error: ResponseError) => {
 export const request: RequestConfig = {
   errorHandler,
 };
+
+// Wrap your entire application with the context provider
+// const App: React.FC = ({ children }) => {
+//   return (
+//     <ContextProvider>
+//       {children}
+//     </ContextProvider>
+//   );
+// };
+
+// export default App;
