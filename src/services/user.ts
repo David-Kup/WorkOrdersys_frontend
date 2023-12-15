@@ -54,6 +54,11 @@ export interface addDeptType {
   label?: string
 }
 
+export interface addCompanyType {
+  name: string,
+  description?: string
+}
+
 export interface TokenType {
   app_name: string,
   ticket_sn_prefix?: string
@@ -101,6 +106,20 @@ export async function getDeptList(params: GetDeptListType) {
 
 export async function getSimpleDeptList(params: GetUserListType) {
   return request<API.CommonResponse> ('/api/v1.0/accounts/simple_depts',{
+    method: 'get',
+    params: params
+  })
+}
+
+export async function getCompanyList(params: GetCompanyListType) {
+  return request<API.CommonResponse> ('/api/v1.0/accounts/companies',{
+    method: 'get',
+    params: params
+  })
+}
+
+export async function getSimpleCompanyList(params: GetUserListType) {
+  return request<API.CommonResponse> ('/api/v1.0/accounts/simple_companies',{
     method: 'get',
     params: params
   })
@@ -198,6 +217,26 @@ export async function addDeptRequest(params: addDeptType) {
 
 export async function updateDeptRequest(deptId: number, params: addDeptType) {
   return request<API.CommonResponse> (`/api/v1.0/accounts/depts/${deptId}`, {
+    method: 'patch',
+    data: params
+  })
+}
+
+export async function delCompanyRequest(companyId: number) {
+  return request<API.CommonResponse> (`/api/v1.0/accounts/companies/${companyId}`, {
+    method: 'delete',
+  })
+}
+
+export async function addCompanyRequest(params: addCompanyType) {
+  return request<API.CommonResponse> ('/api/v1.0/accounts/companies', {
+    method: 'post',
+    data: params
+  })
+}
+
+export async function updateCompanyRequest(companyId: number, params: addCompanyType) {
+  return request<API.CommonResponse> (`/api/v1.0/accounts/companies/${companyId}`, {
     method: 'patch',
     data: params
   })

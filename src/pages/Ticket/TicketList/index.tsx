@@ -3,6 +3,7 @@ import moment from 'moment';
 import styles from "./index.less";
 import {Table, message, Modal, Col, Form, Input, Row, DatePicker, Button, Select, Popconfirm} from "antd";
 import {addCommentRequest, delTicketRequest, getTicketList} from '@/services/ticket';
+import { getCompanyList } from '@/services/user';
 import TicketDetail from "@/pages/Ticket/TicketDetail";
 import {getWorkflowList} from "@/services/workflows";
 
@@ -22,6 +23,7 @@ class TicketList extends Component<any, any> {
       deleteId: 0,
       searchArgs: {},
       userResult: [],
+      searchCompanyResult: [],
       pagination: {
         current: 1,
         total: 0,
@@ -46,6 +48,7 @@ class TicketList extends Component<any, any> {
   componentDidMount() {
     this.fetchTicketData({});
     this.fetchWorkflowData();
+    this.fetchCompanyData({"per_page":10000});
   };
 
   componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
@@ -145,6 +148,13 @@ class TicketList extends Component<any, any> {
     this.fetchTicketData(values);
   }
 
+  fetchCompanyData = async(params: object) => {
+    const result = await getCompanyList(params);
+    if (result.code === 0 ){
+      this.setState({searchCompanyResult: result.data.value})
+    }
+  }
+
 
   render() {
 
@@ -166,14 +176,14 @@ class TicketList extends Component<any, any> {
         dataIndex: "title",
         key: "title"
       },
-      {
-        title: "类型",
-        dataIndex: "workflow_info",
-        key: "workflow_info",
-        render: (text: { workflow_name: any }) => (
-          text.workflow_name
-        )
-      },
+      // {
+      //   title: "类型",
+      //   dataIndex: "workflow_info",
+      //   key: "workflow_info",
+      //   render: (text: { workflow_name: any }) => (
+      //     text.workflow_name
+      //   )
+      // },
       {
         title: "当前状态",
         dataIndex: "state",
@@ -186,6 +196,11 @@ class TicketList extends Component<any, any> {
         title: "创建人",
         dataIndex: "creator",
         key: "creator"
+      },
+      {
+        title: "公司",
+        dataIndex: ["creator_info", "dept_info", "company", "name"],
+        key: "department"
       },
       {
         title: "部门",
@@ -230,27 +245,48 @@ class TicketList extends Component<any, any> {
             <Input placeholder="支持标题模糊查询" />
           </Form.Item>
         </Col>,
-        <Col span={6} key={"workflowId"}>
+        // <Col span={6} key={"workflowId"}>
+        //   <Form.Item
+        //     name={"workflow_ids"}
+        //     label={"工单类型"}
+        //   >
+        //     <Select
+        //       showSearch
+        //       // labelInValue
+        //       style={{ width: 200 }}
+        //       placeholder="选择工单类型"
+        //       optionFilterProp="children"
+        //       filterOption={(input, option) =>
+        //         Select.Option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+        //       }
+        //     >
+        //       {this.state.workflowResult.map(d => (
+        //         <Select.Option key={d.id} value={d.id}>{d.name}</Select.Option>
+        //       ))}
+        //     </Select>
+        //   </Form.Item>
+
+        // </Col>,
+        <Col span={6} key={"companyId"}>
           <Form.Item
-            name={"workflow_ids"}
-            label={"工单类型"}
+            name={"company_id"}
+            label={"公司类型"}
           >
             <Select
               showSearch
               // labelInValue
-              style={{ width: 200 }}
-              placeholder="选择工单类型"
+              // style={{ width: 200 }}
+              placeholder="公司A"
               optionFilterProp="children"
               filterOption={(input, option) =>
                 Select.Option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
             >
-              {this.state.workflowResult.map(d => (
+              {this.state.searchCompanyResult.map(d => (
                 <Select.Option key={d.id} value={d.id}>{d.name}</Select.Option>
               ))}
             </Select>
           </Form.Item>
-
         </Col>,
         <Col span={6} key={"creator"}>
           <Form.Item
@@ -289,7 +325,32 @@ class TicketList extends Component<any, any> {
               format="YYYY-MM-DD HH:mm:ss "
             />
           </Form.Item>
-        </Col>
+        </Col>,
+        <Col span={6} key={"create_time"}>
+        <Form.Item
+            name="urgency_level"
+            label="程度"
+          >
+            <Select
+              showSearch
+              // labelInValue
+              // style={{ width: 200 }}
+              placeholder="普通"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                Select.Option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+              defaultValue={this.state.urgencyLevel}
+              onChange={(value)=>{
+                this.setState({ urgencyLevel: value })
+              }}
+            >
+              {['紧急', '普通', '暂缓'].map(d => (
+                <Select.Option key={'urgency level:'+d} value={d}>{d}</Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+      </Col>
       ]
       return children;
     };

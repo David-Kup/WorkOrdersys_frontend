@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import {Table, Col, Form, Input, Card, Row, Button, Modal, Select, Radio, message, Popconfirm} from "antd";
-import {addDeptRequest, delDeptRequest, getDeptList, queryUserSimple, updateDeptRequest} from "@/services/user";
+import {addDeptRequest, delDeptRequest, getDeptList, queryUserSimple, updateDeptRequest, getCompanyList} from "@/services/user";
 
 
 const { Option } = Select;
@@ -16,6 +16,7 @@ class DeptList extends Component<any, any> {
       deptModalVisible: false,
       searchLeaderResult: [],
       searchApproverResult: [],
+      searchCompanyResult: [],
       pagination: {
         current: 1,
         total: 0,
@@ -38,6 +39,7 @@ class DeptList extends Component<any, any> {
   componentDidMount() {
     this.fetchDeptData({per_page:10, page:1});
     this.fetchAlldeptData();
+    this.fetchCompanyData({"per_page":10000});
   }
   
   fetchAlldeptData = async() => {
@@ -144,6 +146,13 @@ class DeptList extends Component<any, any> {
     }
   }
 
+  fetchCompanyData = async(params: object) => {
+    const result = await getCompanyList(params);
+    if (result.code === 0 ){
+      this.setState({searchCompanyResult: result.data.value})
+    }
+  }
+
 
   render(){
     const columns = [
@@ -152,39 +161,44 @@ class DeptList extends Component<any, any> {
         dataIndex: "name",
         key: "name"
       },
-      {
-        title: "上级部门",
-        dataIndex: ["parent_dept_info", "parent_dept_name"],
-        key: "parent_dept"
-      },
-      {
-        title: "部门负责人",
-        key: "leader",
-        render:(text: string, record: any)=>{
-          return record.leader_info?record.leader_info.leader_alias: record.leader;
-        }
-      },
-      {
-        title: "部门审批人",
-        // dataIndex: "approver",
-        key: "approver",
-        render:(text: string, record:any)=>{
-          let approver_info_list = [];
-          record.approver_info.forEach(approver0=>{
-            approver_info_list.push(approver0.approver_alias);
-          })
-          return approver_info_list.join();
-        }
-      },
-      {
-        title: "标签",
-        dataIndex: "label",
-        key: "label"
-      },
+      // {
+      //   title: "上级部门",
+      //   dataIndex: ["parent_dept_info", "parent_dept_name"],
+      //   key: "parent_dept"
+      // },
+      // {
+      //   title: "部门负责人",
+      //   key: "leader",
+      //   render:(text: string, record: any)=>{
+      //     return record.leader_info?record.leader_info.leader_alias: record.leader;
+      //   }
+      // },
+      // {
+      //   title: "部门审批人",
+      //   // dataIndex: "approver",
+      //   key: "approver",
+      //   render:(text: string, record:any)=>{
+      //     let approver_info_list = [];
+      //     record.approver_info.forEach(approver0=>{
+      //       approver_info_list.push(approver0.approver_alias);
+      //     })
+      //     return approver_info_list.join();
+      //   }
+      // },
+      // {
+      //   title: "标签",
+      //   dataIndex: "label",
+      //   key: "label"
+      // },
       {
         title: "创建人",
-        dataIndex: ["creator_info", "creator_alias"],
+        dataIndex: "creator",
         key: "creator"
+      },
+      {
+        title: "公司",
+        dataIndex: ["company", "name"],
+        key: "company"
       },
       {
         title: "创建时间",
@@ -250,7 +264,7 @@ class DeptList extends Component<any, any> {
               </Col>
             </Row>
           </Form>
-          <Table loading={this.state.deptListLoading} columns={columns} dataSource={this.state.deptResult}
+          <Table loading={this.state.deptResultLoading} columns={columns} dataSource={this.state.deptResult}
                  rowKey={record => record.id} pagination={this.state.pagination}/>
         </Card>
         <Modal
@@ -269,7 +283,7 @@ class DeptList extends Component<any, any> {
             <Form.Item name="name" label="名称" rules={[{ required: true }]} initialValue={this.getDeptDetailField('name')}>
               <Input />
             </Form.Item>
-            <Form.Item name="parent_dept_id" label="上级部门" initialValue={String(this.getDeptDetailField('parent_dept_id'))}>
+            <Form.Item name="parent_dept_id" label="上级部门" initialValue={String(this.getDeptDetailField('parent_dept_id'))} hidden>
               <Select
                 allowClear
                 showSearch
@@ -281,7 +295,7 @@ class DeptList extends Component<any, any> {
               ))}
               </Select>
             </Form.Item>
-            <Form.Item name="leader" label="负责人" initialValue={this.getDeptDetailField('leader')}>
+            <Form.Item name="leader" label="负责人" initialValue={this.getDeptDetailField('leader')} hidden>
               <Select
                 allowClear
                 showSearch
@@ -295,7 +309,7 @@ class DeptList extends Component<any, any> {
               </Select>
             </Form.Item>
             { this.getDeptDetailField('approver')?
-              <Form.Item name="approver" label="审批人" initialValue={this.getDeptDetailField('approver')}>
+              <Form.Item name="approver" label="审批人" initialValue={this.getDeptDetailField('approver')} hidden>
                 <Select
                   mode="multiple"
                   allowClear
@@ -309,7 +323,7 @@ class DeptList extends Component<any, any> {
                   ))}
                 </Select>
               </Form.Item>:
-              <Form.Item name="approver" label="审批人" >
+              <Form.Item name="approver" label="审批人" hidden>
                 <Select
                   mode="multiple"
                   allowClear
@@ -326,9 +340,20 @@ class DeptList extends Component<any, any> {
 
             }
 
-            <Form.Item name="label" label="标签" initialValue={this.getDeptDetailField('label')}>
+            <Form.Item name="label" label="标签" initialValue={this.getDeptDetailField('label')} hidden>
               <Input />
             </Form.Item>
+            <Form.Item name="company_id" label="公司">
+                <Select
+                  allowClear
+                  style={{ width: '100%' }}
+                  placeholder="公司"
+                >
+                  {this.state.searchCompanyResult.map(d => (
+                    <Option key={d.id}>{`${d.name}`}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
             <Form.Item {...tailLayout}>
               <Button type="primary" htmlType="submit">
                 确定

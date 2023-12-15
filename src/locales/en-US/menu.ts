@@ -59,6 +59,7 @@ export default {
   'menu.usermanage.users': 'Users',
   'menu.usermanage.roles': 'Roles',
   'menu.usermanage.departments': 'Departments',
+  'menu.usermanage.companies': 'Companies',
   'menu.systemconfiguration': 'System configuration',
   'menu.account.changepassword': 'Change password'
 };
