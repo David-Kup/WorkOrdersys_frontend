@@ -138,6 +138,12 @@ export default defineConfig({
           "component": '../../src/pages/User/Dept/DeptList',
 
         },
+        {
+          "path": "/users/company",
+          "name": "companies",
+          "component": '../../src/pages/User/Company/CompanyList',
+
+        },
         // {
         //   "path": "/users/app",
         //   "name": "调用权限",

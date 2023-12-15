@@ -1180,7 +1180,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
                   option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }>
                   {this.state.deptSelectDict && this.state.deptSelectDict.map(d => (
-                    <Option key={d.name} value={d.id}>{`${d.name}`}</Option>
+                    <Option key={d.name} value={d.id}>{d.name + (d.company ? ` (${d.company.name})` : '')}</Option>
                   ))}
 
                 </Select>

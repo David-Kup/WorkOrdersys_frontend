@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import {Table, Col, Card, Row, Form, Input, Button, message, Modal, Select, Radio, Popconfirm} from "antd";
-import {addUser, delUserRequest, getDeptList, getUserList, resetUserPasswd, updateUser} from "@/services/user";
+import {addUser, delUserRequest, getDeptList, getUserList, resetUserPasswd, updateUser, getCompanyList} from "@/services/user";
 import UserRoleList from "@/pages/User/User/UserRoleList";
 
 const { Option } = Select;
@@ -33,7 +33,8 @@ class UserList extends Component<any, any> {
             })
           });
         }
-      }
+      },
+      searchCompanyResult: []
     }
   }
 
@@ -41,6 +42,7 @@ class UserList extends Component<any, any> {
   componentDidMount() {
     this.fetchUserData({});
     this.fetchDeptData({"per_page":10000});
+    this.fetchCompanyData({"per_page":10000});
   }
 
   fetchDeptData = async (params) => {
@@ -171,6 +173,13 @@ class UserList extends Component<any, any> {
     this.setState({userIdForRole: userId, userRoleModalVisible:true});
   }
 
+  fetchCompanyData = async(params: object) => {
+    const result = await getCompanyList(params);
+    if (result.code === 0 ){
+      this.setState({searchCompanyResult: result.data.value})
+    }
+  }
+
   render() {
 
     const columns = [
@@ -207,6 +216,11 @@ class UserList extends Component<any, any> {
         }
       },
       {
+        title: "部门",
+        key: "user_com",
+        dataIndex: ["company", "name"],
+      },
+      {
         title: "状态",
         dataIndex: "is_active",
         key: "is_active",
@@ -235,7 +249,7 @@ class UserList extends Component<any, any> {
       },
       {
         title: "创建人",
-        dataIndex: ["creator_info", "creator_alias"],
+        dataIndex: "creator",
         key: "creator_info"
       },
       {
@@ -338,6 +352,18 @@ class UserList extends Component<any, any> {
             <Form.Item name="phone" label="电话" rules={[{ required: true }]} initialValue={this.getUserDetailField('phone')}>
               <Input />
             </Form.Item> */}
+            <Form.Item name="company_id" label="公司"  initialValue={this.getUserDetailField('company')}>
+              <Select
+                allowClear
+                style={{ width: '100%' }}
+                placeholder="请选择用户所在部门"
+              >
+                {this.state.searchCompanyResult.map(d => (
+
+                  <Option key={d.id}>{d.name}</Option>
+                ))}
+              </Select>
+            </Form.Item>
             <Form.Item name="dept" label="部门"  initialValue={this.getUserDetailField('dept')}>
               <Select
                 mode="multiple"
@@ -347,7 +373,7 @@ class UserList extends Component<any, any> {
               >
                 {this.state.deptResult.map(d => (
 
-                  <Option key={d.id} value={d.id}>{d.name}</Option>
+                  <Option key={d.id} value={d.id}>{d.name + (d.company ? ` (${d.company.name})` : '')}</Option>
                 ))}
               </Select>
             </Form.Item>

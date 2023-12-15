@@ -59,6 +59,7 @@ export default {
   'menu.usermanage.users': '用户',
   'menu.usermanage.roles': '角色',
   'menu.usermanage.departments': '部门',
+  'menu.usermanage.companies': '公司',
   'menu.systemconfiguration': '系统配置',
   'menu.account.changepassword': '修改密码'
 };
