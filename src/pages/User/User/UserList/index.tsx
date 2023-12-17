@@ -216,7 +216,7 @@ class UserList extends Component<any, any> {
         }
       },
       {
-        title: "部门",
+        title: "公司",
         key: "user_com",
         dataIndex: ["company", "name"],
       },
@@ -352,7 +352,7 @@ class UserList extends Component<any, any> {
             <Form.Item name="phone" label="电话" rules={[{ required: true }]} initialValue={this.getUserDetailField('phone')}>
               <Input />
             </Form.Item> */}
-            <Form.Item name="company_id" label="公司"  initialValue={this.getUserDetailField('company')}>
+            <Form.Item name="company_id" label="公司"  initialValue={this.getUserDetailField('company')?.name}>
               <Select
                 allowClear
                 style={{ width: '100%' }}
