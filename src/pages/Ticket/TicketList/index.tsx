@@ -5,7 +5,7 @@ import {Table, message, Modal, Col, Form, Input, Row, DatePicker, Button, Select
 import {addCommentRequest, delTicketRequest, getTicketList} from '@/services/ticket';
 import { getCompanyList } from '@/services/user';
 import TicketDetail from "@/pages/Ticket/TicketDetail";
-import {getWorkflowList} from "@/services/workflows";
+import { getWorkflowList, getWorkflowState } from "@/services/workflows";
 
 const { RangePicker } = DatePicker;
 let timeout;
@@ -24,6 +24,7 @@ class TicketList extends Component<any, any> {
       searchArgs: {},
       userResult: [],
       searchCompanyResult: [],
+      searchStateList: [],
       pagination: {
         current: 1,
         total: 0,
@@ -49,6 +50,7 @@ class TicketList extends Component<any, any> {
     this.fetchTicketData({});
     this.fetchWorkflowData();
     this.fetchCompanyData({"per_page":10000});
+    this.fetchStateListData({"per_page":10000});
   };
 
   componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
@@ -155,6 +157,13 @@ class TicketList extends Component<any, any> {
     }
   }
 
+  fetchStateListData = async(params: object)=>{
+    const result = await getWorkflowState(1, params);//workflowid = 1
+    if (result.code ===0){
+      this.setState({searchStateList: result.data.value})
+    }
+  }
+
 
   render() {
 
@@ -199,13 +208,21 @@ class TicketList extends Component<any, any> {
       },
       {
         title: "公司",
-        dataIndex: ["creator_info", "dept_info", "company", "name"],
+        dataIndex: ["creator_info", "company", "name"],
         key: "department"
       },
       {
         title: "部门",
-        dataIndex: ["creator_info", "dept_info", "name"],
-        key: "department"
+        dataIndex: ["participant_dept", "name"],
+        key: "department",
+        render: (text, record) => {
+          // Extract the department name and company name
+          const deptName = record?.participant_dept?.name == undefined ? "" : record?.participant_dept?.name;
+          const companyName = record?.participant_dept?.company?.name == undefined ? "" : `(${record?.participant_dept?.company?.name})`;
+      
+          // Format and return the string
+          return `${deptName} ${companyName}`;
+        }
       },
       {
         title: "创建时间",
@@ -296,10 +313,11 @@ class TicketList extends Component<any, any> {
             <Input placeholder="请填写工单创建人" />
           </Form.Item>
         </Col>,
-        <Col span={6} key={"deapartment"}>
+        <Col span={6} key={"department"}>
           <Form.Item
             name={"department"}
             label={"部门"}
+            hidden
           >
             <Input placeholder="请填写工单部门" />
           </Form.Item>
@@ -326,31 +344,53 @@ class TicketList extends Component<any, any> {
             />
           </Form.Item>
         </Col>,
-        <Col span={6} key={"create_time"}>
-        <Form.Item
-            name="urgency_level"
-            label="程度"
+        // <Col span={6} key={"create_time"}>
+        //   <Form.Item
+        //       name="urgency_level"
+        //       label="程度"
+        //     >
+        //       <Select
+        //         showSearch
+        //         // labelInValue
+        //         // style={{ width: 200 }}
+        //         placeholder="普通"
+        //         optionFilterProp="children"
+        //         filterOption={(input, option) =>
+        //           Select.Option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+        //         }
+        //         defaultValue={this.state.urgencyLevel}
+        //         onChange={(value)=>{
+        //           this.setState({ urgencyLevel: value })
+        //         }}
+        //       >
+        //         {['紧急', '普通', '暂缓'].map(d => (
+        //           <Select.Option key={'urgency level:'+d} value={d}>{d}</Select.Option>
+        //         ))}
+        //       </Select>
+        //     </Form.Item>
+        // </Col>,
+        <Col span={6} key={"stateIds"}>
+          <Form.Item
+            name={"state_ids"}
+            label={"当前状态"}
           >
             <Select
               showSearch
               // labelInValue
               // style={{ width: 200 }}
-              placeholder="普通"
+              // mode="multiple"
+              placeholder="未处理"
               optionFilterProp="children"
               filterOption={(input, option) =>
                 Select.Option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
-              defaultValue={this.state.urgencyLevel}
-              onChange={(value)=>{
-                this.setState({ urgencyLevel: value })
-              }}
             >
-              {['紧急', '普通', '暂缓'].map(d => (
-                <Select.Option key={'urgency level:'+d} value={d}>{d}</Select.Option>
+              {this.state.searchStateList.map(d => (
+                <Select.Option key={d.id} value={d.id}>{d.name}</Select.Option>
               ))}
             </Select>
           </Form.Item>
-      </Col>
+        </Col>,
       ]
       return children;
     };
