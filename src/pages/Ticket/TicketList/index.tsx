@@ -3,6 +3,7 @@ import moment from 'moment';
 // import styles from "./index.less";
 import "./index.less";
 import {Table, message, Modal, Col, Form, Input, Row, DatePicker, Button, Select, Popconfirm, Collapse} from "antd";
+import { useIntl } from 'umi';
 import {addCommentRequest, delTicketRequest, getTicketList} from '@/services/ticket';
 import { getCompanyList } from '@/services/user';
 import TicketDetail from "@/pages/Ticket/TicketDetail";
@@ -45,7 +46,6 @@ class TicketList extends Component<any, any> {
     };
   }
   formRef = React.createRef<FormInstance>();
-
 
   componentDidMount() {
     this.fetchTicketData({});
@@ -213,9 +213,8 @@ class TicketList extends Component<any, any> {
 
 
   render() {
-
     const userOptions = this.state.userResult.map(d => <Select.Option key={d.value}>{d.text}</Select.Option>);
-
+    const { intl } = this.props;
     const columns = [
       {
         title: "Id",
@@ -223,12 +222,12 @@ class TicketList extends Component<any, any> {
         key: "id",
       },
       {
-        title: "流水号",
+        title: intl.formatMessage({id: 'component.ticketlist.table.sn'}),
         dataIndex: "sn",
         key: "sn"
       },
       {
-        title: "标题",
+        title: intl.formatMessage({id: 'component.ticketlist.table.title'}),
         dataIndex: "title",
         key: "title"
       },
@@ -241,7 +240,7 @@ class TicketList extends Component<any, any> {
       //   )
       // },
       {
-        title: "当前状态",
+        title: intl.formatMessage({id: 'component.ticketlist.table.state'}),
         dataIndex: "state",
         key: "state",
         render: (text: { state_name: string }) => (
@@ -249,17 +248,17 @@ class TicketList extends Component<any, any> {
         )
       },
       {
-        title: "创建人",
+        title: intl.formatMessage({id: 'component.ticketlist.table.creator'}),
         dataIndex: "creator",
         key: "creator"
       },
       {
-        title: "公司",
+        title: intl.formatMessage({id: 'component.ticketlist.table.company'}),
         dataIndex: ["creator_info", "company", "name"],
-        key: "department"
+        key: "company"
       },
       {
-        title: "部门",
+        title: intl.formatMessage({id: 'component.ticketlist.table.department'}),
         dataIndex: ["participant_dept", "name"],
         key: "department",
         render: (text, record) => {
@@ -272,12 +271,12 @@ class TicketList extends Component<any, any> {
         }
       },
       {
-        title: "创建时间",
+        title: intl.formatMessage({id: 'component.ticketlist.table.created_at'}),
         dataIndex: "gmt_created",
         key: "gmt_created"
       },
       {
-        title: "操作",
+        title: intl.formatMessage({id: 'component.ticketlist.table.action'}),
         key: "action",
         render: (text: string, record: any) => {
           if (["all", "intervene"].indexOf(this.props.category) !== -1 && !this.props.parentTicketId) {
@@ -306,12 +305,12 @@ class TicketList extends Component<any, any> {
         key: "id",
       },
       {
-        title: "标题",
+        title: intl.formatMessage({id: 'component.ticketlist.table.title'}),
         dataIndex: "title",
         key: "title"
       },
       {
-        title: "创建时间",
+        title: intl.formatMessage({id: 'component.ticketlist.table.created_at'}),
         dataIndex: "gmt_created",
         key: "gmt_created"
       }
@@ -322,7 +321,7 @@ class TicketList extends Component<any, any> {
         <Col span={8} key={"titleCol"}>
           <Form.Item
             name={"title"}
-            label={"标题"}
+            label={intl.formatMessage({id: 'component.ticketlist.table.title'})}
           >
             <Input placeholder="支持标题模糊查询" />
           </Form.Item>
@@ -352,7 +351,7 @@ class TicketList extends Component<any, any> {
         <Col span={8} key={"companyId"}>
           <Form.Item
             name={"company_id"}
-            label={"公司类型"}
+            label={intl.formatMessage({id: 'component.ticketlist.table.company'})}
           >
             <Select
               showSearch
@@ -373,7 +372,7 @@ class TicketList extends Component<any, any> {
         <Col span={8} key={"creator"}>
           <Form.Item
             name={"creator"}
-            label={"创建人"}
+            label={intl.formatMessage({id: 'component.ticketlist.table.creator'})}
           >
             <Input placeholder="请填写工单创建人" />
           </Form.Item>
@@ -389,7 +388,7 @@ class TicketList extends Component<any, any> {
         <Col span={8} key={"sn"}>
           <Form.Item
             name={"sn"}
-            label={"流水号"}
+            label={intl.formatMessage({id: 'component.ticketlist.table.sn'})}
           >
             <Input placeholder="请输入工单流水号" />
           </Form.Item>
@@ -397,7 +396,7 @@ class TicketList extends Component<any, any> {
         <Col span={8} key={"create_time"}>
           <Form.Item
             name={"create_time"}
-            label={"创建时间"}
+            label={intl.formatMessage({id: 'component.ticketlist.table.created_at'})}
           >
             <RangePicker
               showTime={{
@@ -436,7 +435,7 @@ class TicketList extends Component<any, any> {
         <Col span={8} key={"stateIds"}>
           <Form.Item
             name={"state_ids"}
-            label={"当前状态"}
+            label={intl.formatMessage({id: 'component.ticketlist.table.state'})}
           >
             <Select
               showSearch
@@ -471,7 +470,7 @@ class TicketList extends Component<any, any> {
           <Row>
             <Col span={24} style={{ textAlign: 'right' }}>
               <Button type="primary" htmlType="submit">
-                搜索
+                {intl.formatMessage({id: 'component.ticketlist.btn.find'})}
               </Button>
               <Button
                 style={{ margin: '0 8px' }}
@@ -479,7 +478,7 @@ class TicketList extends Component<any, any> {
                   this.formRef.current.resetFields();
                 }}
               >
-                重置
+                {intl.formatMessage({id: 'component.ticketlist.btn.init'})}
               </Button>
             </Col>
           </Row>
@@ -536,7 +535,7 @@ class TicketList extends Component<any, any> {
         </div>
 
         <Modal
-          title={`工单详情: #${this.state.openTicketId}`}
+          title={`${intl.formatMessage({id: 'component.ticketlist.modal.ticketDetail'})}: #${this.state.openTicketId}`}
           width={1024}
           visible={this.state.visible}
           onOk={this.handleOk}
@@ -549,7 +548,7 @@ class TicketList extends Component<any, any> {
         </Modal>
 
         <Modal
-          title={"删除工单"}
+          title={intl.formatMessage({id: 'component.ticketlist.modal.ticketDel'})}
           visible={this.state.deleteVisible}
           onCancel={this.handleCancel}
           footer={null}>
@@ -565,7 +564,7 @@ class TicketList extends Component<any, any> {
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" className="login-form-button">
-                提交
+                {intl.formatMessage({id: 'component.ticketlist.modal.submit'})}
               </Button>
             </Form.Item>
           </Form>
@@ -576,4 +575,11 @@ class TicketList extends Component<any, any> {
   }
 }
 
-export default TicketList;
+// export default TicketList;
+
+const IntlWrapper = (props) => {
+  const intl = useIntl();
+  return <TicketList intl={intl} {...props} />;
+}
+
+export default IntlWrapper;
