@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import moment from 'moment';
-import styles from "./index.less";
-import {Table, message, Modal, Col, Form, Input, Row, DatePicker, Button, Select, Popconfirm} from "antd";
+// import styles from "./index.less";
+import "./index.less";
+import {Table, message, Modal, Col, Form, Input, Row, DatePicker, Button, Select, Popconfirm, Collapse} from "antd";
 import {addCommentRequest, delTicketRequest, getTicketList} from '@/services/ticket';
 import { getCompanyList } from '@/services/user';
 import TicketDetail from "@/pages/Ticket/TicketDetail";
@@ -135,7 +136,6 @@ class TicketList extends Component<any, any> {
 
 
   searchTicket = (values) => {
-    console.log(values);
     if (values.create_time){
       if (values.create_time[0]){
         values.create_start = values.create_time[0].format('YYYY-MM-DD HH:mm:ss')
@@ -163,6 +163,53 @@ class TicketList extends Component<any, any> {
       this.setState({searchStateList: result.data.value})
     }
   }
+
+  // Custom render function for each row on mobile
+  renderMobileRow = (record) => {
+    // Extract the department name and company name
+    const deptName = record?.participant_dept?.name == undefined ? "" : record?.participant_dept?.name;
+    const companyName = record?.participant_dept?.company?.name == undefined ? "" : `(${record?.participant_dept?.company?.name})`;
+
+    const renderAction = () => {
+      if (["all", "intervene"].indexOf(this.props.category) !== -1 && !this.props.parentTicketId) {
+        return (
+          <span>
+            <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>详情</a> |
+            <a onClick={() => this.showDeleteModal(record.id)} style={{color:'red', marginLeft: 5}}>删除</a>
+
+          </span>
+        )
+      } else {
+        return (
+          <span>
+            <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>详情</a>
+          </span>
+        )
+      }
+    }
+
+    // Format and return the string
+    return (
+      <Collapse bordered={false} defaultActiveKey={1}>
+        <Collapse.Panel header={`Details for Ticket ID: ${record.id}`} key="1">
+          {/* Render the details of the ticket here */}
+          <p>{`流水号: ${record.sn}`}</p>
+          <p>{`当前状态: ${record.state.state_name}`}</p>
+          <p>{`创建人: ${record.creator}`}</p>
+          <p>{`公司: ${record.creator_info.company ? record.creator_info.company.name: ''}`}</p>
+          <p>{`部门: ${deptName} ${companyName}`}</p>
+          <p>{`操作: `} {renderAction()}</p>
+          {/* Add more details as needed */}
+        </Collapse.Panel>
+      </Collapse>
+    );
+  };
+
+  onExpand = (expanded, record) => {
+    const keys = expanded ? [record.id] : [];
+    this.setState({ expandedRowKeys: keys });
+  };
+
 
 
   render() {
@@ -252,9 +299,27 @@ class TicketList extends Component<any, any> {
   }
     ];
 
+    const columnsInMobile = [
+      {
+        title: "Id",
+        dataIndex: "id",
+        key: "id",
+      },
+      {
+        title: "标题",
+        dataIndex: "title",
+        key: "title"
+      },
+      {
+        title: "创建时间",
+        dataIndex: "gmt_created",
+        key: "gmt_created"
+      }
+    ];
+
     const getFields = () => {
       const children = [
-        <Col span={6} key={"titleCol"}>
+        <Col span={8} key={"titleCol"}>
           <Form.Item
             name={"title"}
             label={"标题"}
@@ -284,7 +349,7 @@ class TicketList extends Component<any, any> {
         //   </Form.Item>
 
         // </Col>,
-        <Col span={6} key={"companyId"}>
+        <Col span={8} key={"companyId"}>
           <Form.Item
             name={"company_id"}
             label={"公司类型"}
@@ -305,7 +370,7 @@ class TicketList extends Component<any, any> {
             </Select>
           </Form.Item>
         </Col>,
-        <Col span={6} key={"creator"}>
+        <Col span={8} key={"creator"}>
           <Form.Item
             name={"creator"}
             label={"创建人"}
@@ -313,16 +378,15 @@ class TicketList extends Component<any, any> {
             <Input placeholder="请填写工单创建人" />
           </Form.Item>
         </Col>,
-        <Col span={6} key={"department"}>
-          <Form.Item
-            name={"department"}
-            label={"部门"}
-            hidden
-          >
-            <Input placeholder="请填写工单部门" />
-          </Form.Item>
-        </Col>,
-        <Col span={6} key={"sn"}>
+        // <Col span={8} key={"department"}>
+        //   <Form.Item
+        //     name={"department"}
+        //     label={"部门"}
+        //   >
+        //     <Input placeholder="请填写工单部门" />
+        //   </Form.Item>
+        // </Col>,
+        <Col span={8} key={"sn"}>
           <Form.Item
             name={"sn"}
             label={"流水号"}
@@ -330,7 +394,7 @@ class TicketList extends Component<any, any> {
             <Input placeholder="请输入工单流水号" />
           </Form.Item>
         </Col>,
-        <Col span={6} key={"create_time"}>
+        <Col span={8} key={"create_time"}>
           <Form.Item
             name={"create_time"}
             label={"创建时间"}
@@ -369,7 +433,7 @@ class TicketList extends Component<any, any> {
         //       </Select>
         //     </Form.Item>
         // </Col>,
-        <Col span={6} key={"stateIds"}>
+        <Col span={8} key={"stateIds"}>
           <Form.Item
             name={"state_ids"}
             label={"当前状态"}
@@ -396,7 +460,7 @@ class TicketList extends Component<any, any> {
     };
 
     return (
-      <div className={styles.container}>
+      <div>
         {!this.props.parentTicketId? <Form
           name="advanced_search"
           className="ant-advanced-search-form"
@@ -422,7 +486,7 @@ class TicketList extends Component<any, any> {
 
         </Form>: null}
 
-        <div id="components-table-demo-basic">
+        <div id="components-table-demo-basic" className="desktop-only">
           {this.props.parentTicketId && this.state.ticketResult.length ?
             <Table loading={this.state.ticketListLoading}
                    title={()=>{return '子工单'}}
@@ -441,6 +505,36 @@ class TicketList extends Component<any, any> {
           />: null}
 
         </div>
+        <div id="components-table-demo-basic" className="mobile-only">
+          {this.props.parentTicketId && this.state.ticketResult.length ?
+            <Table loading={this.state.ticketListLoading}
+                   title={()=>{return '子工单'}}
+                   columns={columnsInMobile}
+                   dataSource={this.state.ticketResult}
+                   rowKey={record=>record.id}
+                   pagination={this.state.pagination}
+                   expandable={{
+                    expandedRowRender: this.renderMobileRow,
+                    rowExpandable: record => record.id !== 'notExpandable',
+                    onExpand: this.onExpand,
+                   }}
+            />
+          : null
+          }
+          {!this.props.parentTicketId? <Table loading={this.state.ticketListLoading}
+                                               columns={columnsInMobile}
+                                               dataSource={this.state.ticketResult}
+                                               rowKey={record=>record.id}
+                                               pagination={this.state.pagination}
+                                               expandable={{
+                                                expandedRowRender: this.renderMobileRow,
+                                                rowExpandable: record => record.id !== 'notExpandable',
+                                                onExpand: this.onExpand,
+                                               }}
+          />: null}
+
+        </div>
+
         <Modal
           title={`工单详情: #${this.state.openTicketId}`}
           width={1024}

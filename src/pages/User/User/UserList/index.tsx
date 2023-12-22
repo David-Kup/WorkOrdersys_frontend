@@ -93,6 +93,13 @@ class UserList extends Component<any, any> {
     delete values['dept'];
     console.log(this.state.userDetail);
     console.log(this.state.userDetail.id)
+    let companyId = values.company_id;
+  
+    // If the company_id is an object (user made a selection), use the value part
+    if (typeof companyId === 'object' && companyId !== null) {
+      companyId = companyId.value;
+    }
+    values.company_id = String(companyId);
     let result = {}
     if (this.state.userDetail && this.state.userDetail.id){
       result = await updateUser(this.state.userDetail.id, values);
@@ -352,18 +359,23 @@ class UserList extends Component<any, any> {
             <Form.Item name="phone" label="电话" rules={[{ required: true }]} initialValue={this.getUserDetailField('phone')}>
               <Input />
             </Form.Item> */}
-            <Form.Item name="company_id" label="公司"  initialValue={this.getUserDetailField('company')?.name}>
+           <Form.Item
+              name="company_id"
+              label="公司"
+              initialValue={{ value: this.getUserDetailField('company')?.id, label: this.getUserDetailField('company')?.name }}
+            >
               <Select
                 allowClear
+                labelInValue  // This tells Select to use an object { value, label } as the value
                 style={{ width: '100%' }}
                 placeholder="请选择用户所在部门"
               >
                 {this.state.searchCompanyResult.map(d => (
-
-                  <Option key={d.id}>{d.name}</Option>
+                  <Option key={d.id} value={d.id}>{d.name}</Option>
                 ))}
               </Select>
             </Form.Item>
+
             <Form.Item name="dept" label="部门"  initialValue={this.getUserDetailField('dept')}>
               <Select
                 mode="multiple"
@@ -377,17 +389,17 @@ class UserList extends Component<any, any> {
                 ))}
               </Select>
             </Form.Item>
-            <Form.Item name="is_active" label="在职" rules={[{ required: true }]} initialValue={this.getUserDetailField('is_active')}>
+            {/* <Form.Item name="is_active" label="在职" rules={[{ required: true }]} initialValue={this.getUserDetailField('is_active')}>
               <Radio.Group value = {this.state.defaultUserState}>
                 <Radio value={1}>在职</Radio>
                 <Radio value={0}>离职</Radio>
               </Radio.Group>
-            </Form.Item>
-            <Form.Item name="type_id" label="用户类型" rules={[{ required: true }]} initialValue={this.getUserDetailField('type_id')}>
+            </Form.Item> */}
+            <Form.Item name="type_id" label="角色分" rules={[{ required: true }]} initialValue={this.getUserDetailField('type_id')}>
               <Radio.Group >
                 <Radio value={0}>普通用户</Radio>
-                <Radio value={1}>工作流管理员</Radio>
-                <Radio value={2}>超级管理员</Radio>
+                <Radio value={1}>部门成员</Radio>
+                <Radio value={2}>审核人员</Radio>
               </Radio.Group>
             </Form.Item>
 
