@@ -166,6 +166,7 @@ class TicketList extends Component<any, any> {
 
   // Custom render function for each row on mobile
   renderMobileRow = (record) => {
+    const intl = useIntl();
     // Extract the department name and company name
     const deptName = record?.participant_dept?.name == undefined ? "" : record?.participant_dept?.name;
     const companyName = record?.participant_dept?.company?.name == undefined ? "" : `(${record?.participant_dept?.company?.name})`;
@@ -174,15 +175,15 @@ class TicketList extends Component<any, any> {
       if (["all", "intervene"].indexOf(this.props.category) !== -1 && !this.props.parentTicketId) {
         return (
           <span>
-            <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>详情</a> |
-            <a onClick={() => this.showDeleteModal(record.id)} style={{color:'red', marginLeft: 5}}>删除</a>
+            <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>{intl.formatMessage({id: 'component.ticketlist.modal.ticketDetail'})}</a> |
+            <a onClick={() => this.showDeleteModal(record.id)} style={{color:'red', marginLeft: 5}}>{intl.formatMessage({id: 'component.ticketlist.modal.ticketDel'})}</a>
 
           </span>
         )
       } else {
         return (
           <span>
-            <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>详情</a>
+            <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>{intl.formatMessage({id: 'component.ticketlist.modal.ticketDetail'})}</a>
           </span>
         )
       }
@@ -193,12 +194,12 @@ class TicketList extends Component<any, any> {
       <Collapse bordered={false} defaultActiveKey={1}>
         <Collapse.Panel header={`Details for Ticket ID: ${record.id}`} key="1">
           {/* Render the details of the ticket here */}
-          <p>{`流水号: ${record.sn}`}</p>
-          <p>{`当前状态: ${record.state.state_name}`}</p>
-          <p>{`创建人: ${record.creator}`}</p>
-          <p>{`公司: ${record.creator_info.company ? record.creator_info.company.name: ''}`}</p>
-          <p>{`部门: ${deptName} ${companyName}`}</p>
-          <p>{`操作: `} {renderAction()}</p>
+          <p>{`${intl.formatMessage({id: 'component.ticketlist.table.sn'})}: ${record.sn}`}</p>
+          <p>{`${intl.formatMessage({id: 'component.ticketlist.table.state'})}: ${record.state.state_name}`}</p>
+          <p>{`${intl.formatMessage({id: 'component.ticketlist.table.creator'})}: ${record.creator}`}</p>
+          <p>{`${intl.formatMessage({id: 'component.ticketlist.table.company'})}: ${record.creator_info.company ? record.creator_info.company.name: ''}`}</p>
+          <p>{`${intl.formatMessage({id: 'component.ticketlist.table.department'})}: ${deptName} ${companyName}`}</p>
+          <p>{`${intl.formatMessage({id: 'component.ticketlist.table.action'})}: `} {renderAction()}</p>
           {/* Add more details as needed */}
         </Collapse.Panel>
       </Collapse>
