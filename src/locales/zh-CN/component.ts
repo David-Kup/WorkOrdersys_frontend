@@ -12,5 +12,8 @@ export default {
   'component.ticketlist.table.created_at': '创建时间',
   'component.ticketlist.table.action': '操作',
   'component.ticketlist.btn.find': '搜索',
-  'component.ticketlist.btn.init': '重置'
+  'component.ticketlist.btn.init': '重置',
+  'component.ticketlist.modal.ticketDetail': '工单详情',
+  'component.ticketlist.modal.ticketDel': '删除工单',
+  'component.ticketlist.modal.submit': '提交',
 };
